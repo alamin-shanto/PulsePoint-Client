@@ -1,9 +1,11 @@
 // src/pages/dashboard/DashboardHome.jsx
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function DashboardHome() {
+  const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("user"));
-  const donationRequests = []; // Later fetch from Firestore
+  const donationRequests = [];
 
   return (
     <div>
@@ -49,9 +51,7 @@ export default function DashboardHome() {
 
           <div className="mt-4">
             <button
-              onClick={() =>
-                (window.location.href = "/dashboard/my-donation-requests")
-              }
+              onClick={() => navigate("/dashboard/my-donation-requests")}
               className="px-4 py-2 bg-blue-600 text-white rounded"
             >
               View My All Requests

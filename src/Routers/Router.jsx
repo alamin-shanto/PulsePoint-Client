@@ -1,14 +1,21 @@
 import { createBrowserRouter } from "react-router-dom";
-import ProtectedLayout from "./../Layout/ProtectedLayout";
-import DashboardHome from "./../Pages/DashboardPages/DashBoardHome";
-import Profile from "./../Pages/DashboardPages/Profile";
-import MyDonationRequests from "./../Pages/DashboardPages/MyDonationRequests";
-import CreateDonationRequest from "./../Pages/DashboardPages/CreateDonationRequest";
+import AuthRedirect from "./../Layout/AuthDIrect";
 import Login from "./../Pages/PublicPages/Login";
 import Register from "./../Pages/PublicPages/Register";
-import NotFound from "./../Pages/DashboardPages/NotFound";
+import ProtectedLayout from "./../Layout/ProtectedLayout";
+import DashboardHome from "./../Pages/DashboardPages/DashBoardHome";
+import MyDonationRequests from "./../Pages/DashboardPages/MyDonationRequests";
+import CreateDonationRequest from "./../Pages/DashboardPages/CreateDonationRequest";
 
 const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <AuthRedirect />,
+    children: [
+      { path: "login", element: <Login /> },
+      { path: "register", element: <Register /> },
+    ],
+  },
   {
     path: "/dashboard",
     element: <ProtectedLayout />,
@@ -19,8 +26,6 @@ const router = createBrowserRouter([
       { path: "create-donation-request", element: <CreateDonationRequest /> },
     ],
   },
-  { path: "/login", element: <Login /> },
-  { path: "/register", element: <Register /> },
   { path: "*", element: <NotFound /> },
 ]);
 

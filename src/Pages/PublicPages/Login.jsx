@@ -1,8 +1,8 @@
 import { useForm } from "react-hook-form";
-import { auth } from "../../firebase/firebase.config";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { Link, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
+import { auth } from "../../Firebase/firebase.config";
 
 const Login = () => {
   const {
@@ -17,21 +17,27 @@ const Login = () => {
     const { email, password } = data;
 
     signInWithEmailAndPassword(auth, email, password)
-      .then((result) => {
+      .then(() => {
         Swal.fire({
           icon: "success",
           title: "Login Successful",
-          text: `Welcome back!`,
+          text: "Welcome back!",
           timer: 1500,
           showConfirmButton: false,
         });
+
         navigate("/");
       })
       .catch((error) => {
         Swal.fire({
           icon: "error",
           title: "Login Failed",
-          text: error.message,
+          text:
+            error.code === "auth/user-not-found"
+              ? "User not found. Please register first."
+              : error.code === "auth/wrong-password"
+              ? "Wrong password. Try again."
+              : error.message,
         });
       });
   };
@@ -97,5 +103,4 @@ const Login = () => {
     </div>
   );
 };
-
 export default Login;

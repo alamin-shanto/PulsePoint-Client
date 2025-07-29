@@ -49,6 +49,9 @@ const BloodRequestForm = () => {
       >
         Add Request
       </button>
+      {mutation.isError && (
+        <p className="text-red-500">Failed to add request. Try again.</p>
+      )}
     </form>
   );
 };

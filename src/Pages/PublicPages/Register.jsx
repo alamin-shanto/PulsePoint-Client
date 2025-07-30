@@ -1,8 +1,14 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { FiEye, FiEyeOff } from "react-icons/fi";
+import { auth } from "../../Firebase/firebase.config";
+import { createUserWithEmailAndPassword } from "firebase/auth";
 
 const BLOOD_GROUPS = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
 
-export default function Register() {
+function Register() {
+  const navigate = useNavigate();
+
   const [divisions, setDivisions] = useState([]);
   const [districtsMap, setDistrictsMap] = useState({});
   const [districts, setDistricts] = useState([]);
@@ -16,6 +22,9 @@ export default function Register() {
     password: "",
     confirm_password: "",
   });
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const [avatarUrl, setAvatarUrl] = useState("");
   const [avatarPreview, setAvatarPreview] = useState(null);
@@ -44,7 +53,6 @@ export default function Register() {
             (item) => item.type === "table" && item.name === "districts"
           )?.data || [];
 
-        // Build map from divisionId -> array of district names
         const map = {};
         districtsData.forEach((district) => {
           const divisionId = String(district.division_id);
@@ -68,7 +76,6 @@ export default function Register() {
     } else {
       setDistricts([]);
     }
-    // Reset district selection when division changes
     setFormData((fd) => ({ ...fd, district: "" }));
   }, [formData.division, districtsMap]);
 
@@ -85,7 +92,7 @@ export default function Register() {
         return;
       }
       setError("");
-      setAvatarUrl(""); // clear avatar URL input
+      setAvatarUrl("");
       const reader = new FileReader();
       reader.onloadend = () => setAvatarPreview(reader.result);
       reader.readAsDataURL(file);
@@ -95,7 +102,7 @@ export default function Register() {
   const handleAvatarUrlChange = (e) => {
     const url = e.target.value.trim();
     setError("");
-    setAvatarUrl(url); // clear file input state
+    setAvatarUrl(url);
     setAvatarPreview(url || null);
   };
 
@@ -121,18 +128,31 @@ export default function Register() {
 
     try {
       setLoading(true);
+
+      // Firebase Auth signup
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        formData.email,
+        formData.password
+      );
+
+      const user = userCredential.user;
+
+      // Save to MongoDB
       const res = await fetch(
         "https://pulse-point-server-blue.vercel.app/users",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            email: formData.email,
+            email: user.email,
             name: formData.name,
-            avatar: avatarPreview, // base64 string if file, or URL string
+            avatar: avatarPreview || "",
             bloodGroup: formData.bloodGroup,
             division: formData.division,
             district: formData.district,
+            role: "donor", // default role
+            status: "active",
           }),
         }
       );
@@ -152,13 +172,18 @@ export default function Register() {
         });
         setAvatarUrl("");
         setAvatarPreview(null);
+
+        setTimeout(() => {
+          navigate("/login");
+        }, 1500);
       } else {
-        setError(data.message || "Registration failed");
+        setError(data.message || "Failed to save user data.");
       }
     } catch (err) {
-      setError("Network error: " + err.message);
+      setError(err.message || "Registration failed.");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
@@ -268,27 +293,51 @@ export default function Register() {
           ))}
         </select>
 
-        <input
-          type="password"
-          name="password"
-          value={formData.password}
-          onChange={handleChange}
-          placeholder="Password"
-          required
-          className="w-full border border-gray-300 rounded px-4 py-2 focus:ring-2 focus:ring-red-400 focus:outline-none"
-          autoComplete="new-password"
-        />
+        {/* Password field with toggle */}
+        <div className="relative">
+          <input
+            type={showPassword ? "text" : "password"}
+            name="password"
+            value={formData.password}
+            onChange={handleChange}
+            placeholder="Password"
+            required
+            className="w-full border border-gray-300 rounded px-4 py-2 focus:ring-2 focus:ring-red-400 focus:outline-none pr-10"
+            autoComplete="new-password"
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword((v) => !v)}
+            className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-full bg-gray-200 hover:bg-red-200 text-gray-700 hover:text-red-600 transition"
+            tabIndex={-1}
+            aria-label={showPassword ? "Hide password" : "Show password"}
+          >
+            {showPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
+          </button>
+        </div>
 
-        <input
-          type="password"
-          name="confirm_password"
-          value={formData.confirm_password}
-          onChange={handleChange}
-          placeholder="Confirm Password"
-          required
-          className="w-full border border-gray-300 rounded px-4 py-2 focus:ring-2 focus:ring-red-400 focus:outline-none"
-          autoComplete="new-password"
-        />
+        {/* Confirm password with toggle */}
+        <div className="relative">
+          <input
+            type={showConfirmPassword ? "text" : "password"}
+            name="confirm_password"
+            value={formData.confirm_password}
+            onChange={handleChange}
+            placeholder="Confirm Password"
+            required
+            className="w-full border border-gray-300 rounded px-4 py-2 focus:ring-2 focus:ring-red-400 focus:outline-none pr-10"
+            autoComplete="new-password"
+          />
+          <button
+            type="button"
+            onClick={() => setShowConfirmPassword((v) => !v)}
+            className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-full bg-gray-200 hover:bg-red-200 text-gray-700 hover:text-red-600 transition"
+            tabIndex={-1}
+            aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+          >
+            {showConfirmPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
+          </button>
+        </div>
 
         <button
           type="submit"
@@ -298,6 +347,21 @@ export default function Register() {
           {loading ? "Registering..." : "Register"}
         </button>
       </form>
+
+      <div className="text-center mt-4">
+        <p className="text-sm text-gray-600">
+          Already have an account?{" "}
+          <button
+            type="button"
+            onClick={() => navigate("/login")}
+            className="text-red-600 hover:underline font-medium"
+          >
+            Login here
+          </button>
+        </p>
+      </div>
     </div>
   );
 }
+
+export default Register;

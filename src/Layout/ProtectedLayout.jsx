@@ -5,10 +5,14 @@ const isAuthenticated = () => !!localStorage.getItem("token");
 
 const ProtectedLayout = () => {
   if (!isAuthenticated()) return <Navigate to="/login" replace />;
+
   return (
-    <DashboardLayout>
-      <Outlet />
-    </DashboardLayout>
+    <div className="min-h-screen flex flex-col">
+      {/* DashboardLayout already has the sidebar and main content */}
+      <DashboardLayout>
+        <Outlet />
+      </DashboardLayout>
+    </div>
   );
 };
 

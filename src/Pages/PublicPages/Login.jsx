@@ -3,8 +3,12 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { Link, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { auth } from "../../Firebase/firebase.config";
+import { FiEye, FiEyeOff } from "react-icons/fi";
+import { useState } from "react";
 
 const Login = () => {
+  const [showPassword, setShowPassword] = useState(false);
+
   const {
     register,
     handleSubmit,
@@ -17,7 +21,10 @@ const Login = () => {
     const { email, password } = data;
 
     signInWithEmailAndPassword(auth, email, password)
-      .then(() => {
+      .then(async (userCredential) => {
+        const token = await userCredential.user.getIdToken();
+        localStorage.setItem("token", token);
+
         Swal.fire({
           icon: "success",
           title: "Login Successful",
@@ -26,7 +33,7 @@ const Login = () => {
           showConfirmButton: false,
         });
 
-        navigate("/");
+        navigate("/dashboard", { replace: true });
       })
       .catch((error) => {
         Swal.fire({
@@ -67,17 +74,26 @@ const Login = () => {
             )}
           </div>
 
-          <div>
+          <div className="relative">
             <label htmlFor="password" className="block font-medium mb-1">
               Password
             </label>
             <input
               id="password"
-              type="password"
+              type={showPassword ? "text" : "password"}
               placeholder="********"
               {...register("password", { required: "Password is required" })}
-              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400"
+              className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 pr-10"
             />
+            <button
+              type="button"
+              onClick={() => setShowPassword((v) => !v)}
+              className="absolute right-3 top-[38px] text-gray-600 hover:text-red-600"
+              tabIndex={-1}
+              aria-label="Toggle password visibility"
+            >
+              {showPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
+            </button>
             {errors.password && (
               <p className="text-red-500 text-sm mt-1">
                 {errors.password.message}

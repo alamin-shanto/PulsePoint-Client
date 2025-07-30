@@ -1,64 +1,74 @@
-// src/pages/dashboard/DashboardHome.jsx
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
-export default function DashboardHome() {
+function DashboardHome() {
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("user"));
-  const donationRequests = [];
+  const donationRequests = []; // Populate later
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-4">
-        Welcome back, {user?.name || "Donor"}!
-      </h1>
+    <div className="w-full min-h-screen p-4 sm:p-8 lg:p-10 bg-gradient-to-b from-red-50 via-white to-gray-100">
+      <div className="mb-10 text-center">
+        <h1 className="text-3xl sm:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-red-400 drop-shadow-md">
+          Welcome back, {user?.name || "Donor"}!
+        </h1>
+        <p className="text-gray-600 mt-2 text-sm sm:text-base">
+          Here’s a quick overview of your blood donation activity.
+        </p>
+      </div>
 
-      {donationRequests.length > 0 && (
-        <section className="mt-6">
-          <h2 className="text-xl font-semibold mb-2">
+      {donationRequests.length > 0 ? (
+        <section>
+          <h2 className="text-2xl font-semibold text-red-700 mb-6 text-center">
             Recent Donation Requests
           </h2>
-          <table className="w-full border rounded">
-            <thead className="bg-gray-100 text-left">
-              <tr>
-                <th>Recipient</th>
-                <th>Location</th>
-                <th>Date</th>
-                <th>Time</th>
-                <th>Blood Group</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {donationRequests.slice(0, 3).map((req) => (
-                <tr key={req.id} className="border-t">
-                  <td>{req.recipientName}</td>
-                  <td>
-                    {req.recipientDistrict}, {req.recipientUpazila}
-                  </td>
-                  <td>{req.donationDate}</td>
-                  <td>{req.donationTime}</td>
-                  <td>{req.bloodGroup}</td>
-                  <td>{req.status}</td>
-                  <td>
-                    <button className="text-blue-600">View</button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
 
-          <div className="mt-4">
+          {/* Desktop Table */}
+          <div className="hidden md:block overflow-x-auto rounded-lg shadow-lg border border-gray-200 bg-white">
+            <table className="min-w-full">
+              <thead className="bg-red-100 text-red-700 font-semibold">
+                <tr>
+                  <th className="py-3 px-6 text-left">Recipient</th>
+                  <th className="py-3 px-6 text-left">Location</th>
+                  <th className="py-3 px-6 text-left">Date</th>
+                  <th className="py-3 px-6 text-left">Time</th>
+                  <th className="py-3 px-6 text-left">Blood Group</th>
+                  <th className="py-3 px-6 text-left">Status</th>
+                  <th className="py-3 px-6 text-left">Actions</th>
+                </tr>
+              </thead>
+              <tbody>{/* Map donationRequests */}</tbody>
+            </table>
+          </div>
+
+          {/* Mobile Cards */}
+          <div className="md:hidden space-y-5 mt-6">
+            {/* Map mobile cards here */}
+          </div>
+
+          <div className="mt-10 flex justify-center">
             <button
               onClick={() => navigate("/dashboard/my-donation-requests")}
-              className="px-4 py-2 bg-blue-600 text-white rounded"
+              className="px-6 py-3 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-700 hover:to-red-600 text-white font-semibold rounded-full shadow-lg transition-all duration-300 transform hover:scale-105"
             >
-              View My All Requests
+              View All My Requests
             </button>
           </div>
         </section>
+      ) : (
+        <div className="text-center mt-24">
+          <img
+            src="https://cdn-icons-png.flaticon.com/512/5948/5948565.png"
+            alt="No requests"
+            className="w-24 h-24 mx-auto opacity-60 mb-4"
+          />
+          <p className="text-gray-500 text-lg sm:text-xl font-medium">
+            You don’t have any donation requests yet.
+          </p>
+        </div>
       )}
     </div>
   );
 }
+
+export default DashboardHome;

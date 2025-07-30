@@ -10,8 +10,32 @@ const Profile = () => {
   const token = localStorage.getItem("token");
 
   useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+
+    if (!storedUser) {
+      console.warn("No user in localStorage");
+      setLoading(false);
+      return;
+    }
+
+    let parsedUser;
+    try {
+      parsedUser = JSON.parse(storedUser);
+    } catch (error) {
+      console.warn("Invalid user data in localStorage", error);
+      setLoading(false);
+      return;
+    }
+
+    const email = parsedUser?.email;
+    if (!email) {
+      console.warn("Email not found in localStorage user");
+      setLoading(false);
+      return;
+    }
+
     axios
-      .get("https://pulsepoint-server.vercel.app/users/me", {
+      .get(`https://pulsepoint-server.vercel.app/users/${email}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -22,7 +46,7 @@ const Profile = () => {
         setLoading(false);
       })
       .catch((err) => {
-        console.error(err);
+        console.error("Error fetching user:", err);
         setLoading(false);
       });
   }, [token]);
@@ -33,25 +57,43 @@ const Profile = () => {
   };
 
   const handleSave = async () => {
+    if (!user?.email) {
+      alert("User email is missing.");
+      return;
+    }
+
     try {
-      const res = await axios.put(
-        `https://pulsepoint-server.vercel.app/users/${user._id}`,
-        formData,
+      const updatedFields = {
+        name: formData.name,
+        bloodGroup: formData.bloodGroup,
+        division: formData.division,
+        district: formData.district,
+        avatar: formData.avatar,
+      };
+
+      const res = await axios.patch(
+        `https://pulsepoint-server.vercel.app/users/${user.email}`,
+        updatedFields,
         {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         }
       );
-      setUser(res.data);
-      setFormData(res.data);
+
+      console.log("Update response:", res.data);
+
+      setUser((prev) => ({ ...prev, ...updatedFields }));
+      setFormData((prev) => ({ ...prev, ...updatedFields }));
       setIsEditing(false);
-    } catch (err) {
-      console.error("Error updating profile:", err);
+    } catch (error) {
+      console.error("Failed to update profile:", error);
+      alert("Update failed. Please try again.");
     }
   };
 
   if (loading) return <div className="text-center py-10">Loading...</div>;
+  if (!user) return <div className="text-center py-10">User not found.</div>;
 
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white shadow-md rounded-lg">
@@ -76,11 +118,14 @@ const Profile = () => {
 
       <div className="flex flex-col md:flex-row gap-6 items-center">
         <img
-          src={user.avatar}
+          src={formData.avatar || "https://via.placeholder.com/150"}
           alt="avatar"
           className="w-32 h-32 rounded-full border-4 border-red-500 object-cover"
         />
-        <form className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <form
+          className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4"
+          onSubmit={(e) => e.preventDefault()}
+        >
           <div>
             <label className="block text-gray-600 font-medium">Name</label>
             <input
@@ -92,13 +137,13 @@ const Profile = () => {
               className={`w-full mt-1 p-2 border rounded ${
                 isEditing ? "bg-white" : "bg-gray-100"
               }`}
+              required
             />
           </div>
           <div>
             <label className="block text-gray-600 font-medium">Email</label>
             <input
               type="email"
-              name="email"
               value={formData.email || ""}
               disabled
               className="w-full mt-1 p-2 border rounded bg-gray-100"
@@ -149,7 +194,6 @@ const Profile = () => {
             <label className="block text-gray-600 font-medium">Role</label>
             <input
               type="text"
-              name="role"
               value={formData.role || ""}
               disabled
               className="w-full mt-1 p-2 border rounded bg-gray-100"

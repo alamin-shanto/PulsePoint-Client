@@ -17,36 +17,74 @@ const Login = () => {
 
   const navigate = useNavigate();
 
-  const onSubmit = (data) => {
+  const onSubmit = async (data) => {
     const { email, password } = data;
 
-    signInWithEmailAndPassword(auth, email, password)
-      .then(async (userCredential) => {
-        const token = await userCredential.user.getIdToken();
-        localStorage.setItem("token", token);
+    try {
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const firebaseToken = await userCredential.user.getIdToken();
 
-        Swal.fire({
-          icon: "success",
-          title: "Login Successful",
-          text: "Welcome back!",
-          timer: 1500,
-          showConfirmButton: false,
-        });
+      const jwtResponse = await fetch(
+        "https://pulse-point-server-blue.vercel.app/jwt",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${firebaseToken}`,
+          },
+        }
+      );
 
-        navigate("/dashboard", { replace: true });
-      })
-      .catch((error) => {
-        Swal.fire({
-          icon: "error",
-          title: "Login Failed",
-          text:
-            error.code === "auth/user-not-found"
-              ? "User not found. Please register first."
-              : error.code === "auth/wrong-password"
-              ? "Wrong password. Try again."
-              : error.message,
-        });
+      if (!jwtResponse.ok) throw new Error("Failed to get backend JWT token");
+
+      const { token: backendJwt } = await jwtResponse.json();
+
+      localStorage.setItem("firebaseToken", firebaseToken);
+      localStorage.setItem("backendJwt", backendJwt);
+
+      const response = await fetch(
+        `https://pulse-point-server-blue.vercel.app/users/${encodeURIComponent(
+          email
+        )}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${backendJwt}`,
+          },
+        }
+      );
+
+      if (!response.ok)
+        throw new Error("Failed to fetch user info from server");
+
+      const userData = await response.json();
+      localStorage.setItem("user", JSON.stringify(userData));
+
+      Swal.fire({
+        icon: "success",
+        title: "Login Successful",
+        text: "Welcome back!",
+        timer: 1500,
+        showConfirmButton: false,
       });
+
+      navigate("/dashboard", { replace: true });
+    } catch (error) {
+      console.error("Login error:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Login Failed",
+        text:
+          error.code === "auth/user-not-found"
+            ? "User not found. Please register first."
+            : error.code === "auth/wrong-password"
+            ? "Wrong password. Try again."
+            : error.message || "An error occurred. Please try again.",
+      });
+    }
   };
 
   return (
@@ -119,4 +157,5 @@ const Login = () => {
     </div>
   );
 };
+
 export default Login;

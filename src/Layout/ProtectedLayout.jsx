@@ -1,7 +1,7 @@
 import { Navigate, Outlet } from "react-router-dom";
 import DashboardLayout from "./DashBoardLayout";
 
-const isAuthenticated = () => !!localStorage.getItem("token");
+const isAuthenticated = () => !!localStorage.getItem("backendJwt");
 
 const ProtectedLayout = () => {
   if (!isAuthenticated()) return <Navigate to="/login" replace />;

@@ -1,11 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { FaTrash, FaEdit } from "react-icons/fa";
 import { toast } from "react-toastify";
+import AuthContext from "../../Context/AuthContext";
 
 const AllDonationRequests = () => {
   const axiosSecure = useAxiosSecure();
+  const { user } = useContext(AuthContext);
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [statusFilter, setStatusFilter] = useState("all");
 
@@ -26,7 +28,12 @@ const AllDonationRequests = () => {
       ? requests
       : requests.filter((req) => req.status === statusFilter);
 
+  // Delete only for admin
   const handleDelete = async (id) => {
+    if (user.role !== "admin") {
+      toast.error("Only admins can delete donation requests.");
+      return;
+    }
     const confirm = window.confirm(
       "Are you sure you want to delete this request?"
     );
@@ -40,16 +47,27 @@ const AllDonationRequests = () => {
     }
   };
 
+  // Update status (volunteer & admin)
   const handleUpdate = async (e) => {
     e.preventDefault();
     const form = e.target;
     const status = form.status.value;
     const donationDate = form.donationDate.value;
 
+    // For volunteer: allow only status update, block donationDate update
+    if (
+      user.role === "volunteer" &&
+      donationDate !== selectedRequest.donationDate
+    ) {
+      toast.error("Volunteers cannot update donation date.");
+      return;
+    }
+
     try {
       await axiosSecure.patch(`/donation-requests/${selectedRequest._id}`, {
         status,
-        donationDate,
+        // only send donationDate if admin
+        ...(user.role === "admin" && { donationDate }),
       });
       toast.success("Request updated");
       setSelectedRequest(null);
@@ -138,18 +156,23 @@ const AllDonationRequests = () => {
                     </span>
                   </td>
                   <td className="flex justify-center gap-2">
+                    {/* Edit button: volunteers + admins */}
                     <button
                       onClick={() => setSelectedRequest(req)}
                       className="btn btn-sm btn-outline btn-info"
                     >
                       <FaEdit />
                     </button>
-                    <button
-                      onClick={() => handleDelete(req._id)}
-                      className="btn btn-sm btn-outline btn-error"
-                    >
-                      <FaTrash />
-                    </button>
+
+                    {/* Delete button: only admins */}
+                    {user.role === "admin" && (
+                      <button
+                        onClick={() => handleDelete(req._id)}
+                        className="btn btn-sm btn-outline btn-error"
+                      >
+                        <FaTrash />
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))}
@@ -180,8 +203,11 @@ const AllDonationRequests = () => {
                   defaultValue={selectedRequest.donationDate}
                   className="input input-bordered w-full"
                   required
+                  disabled={user.role === "volunteer"}
                 />
               </div>
+
+              {/* All can edit status */}
               <div>
                 <label className="block text-sm font-medium mb-1">Status</label>
                 <select
@@ -196,6 +222,7 @@ const AllDonationRequests = () => {
                   <option value="cancelled">Cancelled</option>
                 </select>
               </div>
+
               <div className="flex justify-end gap-3">
                 <button
                   type="button"

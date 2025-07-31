@@ -17,7 +17,7 @@ function Register() {
     email: "",
     name: "",
     bloodGroup: "",
-    division: "", // will hold division id as string
+    division: "", // now holds division name as string
     district: "",
     password: "",
     confirm_password: "",
@@ -53,13 +53,20 @@ function Register() {
             (item) => item.type === "table" && item.name === "districts"
           )?.data || [];
 
+        // Build districtsMap keyed by division name instead of ID
         const map = {};
         districtsData.forEach((district) => {
-          const divisionId = String(district.division_id);
-          if (!map[divisionId]) {
-            map[divisionId] = [];
+          // Find division name for this district's division_id
+          const division = divisionsData.find(
+            (d) => String(d.id) === String(district.division_id)
+          );
+          if (division) {
+            const divisionName = division.name;
+            if (!map[divisionName]) {
+              map[divisionName] = [];
+            }
+            map[divisionName].push(district.name);
           }
-          map[divisionId].push(district.name);
         });
         setDistrictsMap(map);
       } catch (err) {
@@ -76,6 +83,7 @@ function Register() {
     } else {
       setDistricts([]);
     }
+    // Reset district when division changes
     setFormData((fd) => ({ ...fd, district: "" }));
   }, [formData.division, districtsMap]);
 
@@ -149,7 +157,7 @@ function Register() {
             name: formData.name,
             avatar: avatarPreview || "",
             bloodGroup: formData.bloodGroup,
-            division: formData.division,
+            division: formData.division, // sends division name
             district: formData.district,
             role: "donor", // default role
             status: "active",
@@ -271,7 +279,7 @@ function Register() {
         >
           <option value="">Select Division</option>
           {divisions.map((d) => (
-            <option key={d.id} value={String(d.id)}>
+            <option key={d.id} value={d.name}>
               {d.name}
             </option>
           ))}

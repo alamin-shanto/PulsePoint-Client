@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import { FiMenu, FiX } from "react-icons/fi";
+import AuthContext from "../Context/AuthContext";
 
 function DashboardLayout() {
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { user } = useContext(AuthContext);
 
   const handleLogout = () => {
     localStorage.clear();
@@ -34,6 +36,7 @@ function DashboardLayout() {
               >
                 🏠 Home
               </Link>
+
               <Link
                 to="/dashboard/profile"
                 onClick={() => setSidebarOpen(false)}
@@ -41,20 +44,57 @@ function DashboardLayout() {
               >
                 🙍‍♂️ Profile
               </Link>
-              <Link
-                to="/dashboard/my-donation-requests"
-                onClick={() => setSidebarOpen(false)}
-                className="hover:text-red-600 transition"
-              >
-                🩸 My Requests
-              </Link>
-              <Link
-                to="/dashboard/create-donation-request"
-                onClick={() => setSidebarOpen(false)}
-                className="hover:text-red-600 transition"
-              >
-                ➕ Create Request
-              </Link>
+
+              {/* Donor links */}
+              {user?.role === "donor" && (
+                <>
+                  <Link
+                    to="/dashboard/my-donation-requests"
+                    onClick={() => setSidebarOpen(false)}
+                    className="hover:text-red-600 transition"
+                  >
+                    🩸 My Requests
+                  </Link>
+                  <Link
+                    to="/dashboard/create-donation-request"
+                    onClick={() => setSidebarOpen(false)}
+                    className="hover:text-red-600 transition"
+                  >
+                    ➕ Create Request
+                  </Link>
+                </>
+              )}
+
+              {/* Admin links */}
+              {user?.role === "admin" && (
+                <>
+                  <Link
+                    to="/dashboard/all-users"
+                    onClick={() => setSidebarOpen(false)}
+                    className="hover:text-red-600 transition"
+                  >
+                    👥 Manage Users
+                  </Link>
+                  <Link
+                    to="/dashboard/all-blood-donation-request"
+                    onClick={() => setSidebarOpen(false)}
+                    className="hover:text-red-600 transition"
+                  >
+                    📋 All Requests
+                  </Link>
+                </>
+              )}
+
+              {/* Volunteer links */}
+              {user?.role === "volunteer" && (
+                <Link
+                  to="/dashboard/assigned-requests"
+                  onClick={() => setSidebarOpen(false)}
+                  className="hover:text-red-600 transition"
+                >
+                  📌 Assigned Requests
+                </Link>
+              )}
             </nav>
           </div>
 

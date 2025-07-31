@@ -1,25 +1,38 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
-const apiBase = import.meta.env.VITE_API_URL || "";
+const apiBase = "https://pulse-point-server-blue.vercel.app";
 
 const fetchBloodRequests = async () => {
-  const res = await fetch(`${apiBase}/api/requests`);
-  if (!res.ok) throw new Error("Failed to fetch");
+  const token = localStorage.getItem("access-token");
+  const res = await fetch(`${apiBase}/donation-requests`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  if (!res.ok) throw new Error("Failed to fetch blood requests");
   return res.json();
 };
 
 const createRequest = async (newRequest) => {
-  const res = await fetch(`${apiBase}/api/requests`, {
+  const token = localStorage.getItem("access-token");
+  const res = await fetch(`${apiBase}/donation-requests`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
     body: JSON.stringify(newRequest),
   });
-  if (!res.ok) throw new Error("Failed to create request");
+  if (!res.ok) throw new Error("Failed to create blood request");
   return res.json();
 };
 
 export const useBloodRequests = () =>
-  useQuery({ queryKey: ["bloodRequests"], queryFn: fetchBloodRequests });
+  useQuery({
+    queryKey: ["bloodRequests"],
+    queryFn: fetchBloodRequests,
+    retry: 1,
+  });
 
 export const useCreateRequest = () => {
   const queryClient = useQueryClient();

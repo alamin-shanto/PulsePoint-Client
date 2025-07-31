@@ -7,7 +7,7 @@ const Profile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem("backendJwt");
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -35,11 +35,16 @@ const Profile = () => {
     }
 
     axios
-      .get(`https://pulsepoint-server.vercel.app/users/${email}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
+      .get(
+        `https://pulse-point-server-blue.vercel.app/users/${encodeURIComponent(
+          email
+        )}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
       .then((res) => {
         setUser(res.data);
         setFormData(res.data);
@@ -72,7 +77,9 @@ const Profile = () => {
       };
 
       const res = await axios.patch(
-        `https://pulsepoint-server.vercel.app/users/${user.email}`,
+        `https://pulse-point-server-blue.vercel.app/users/${encodeURIComponent(
+          user.email
+        )}`,
         updatedFields,
         {
           headers: {
@@ -80,11 +87,13 @@ const Profile = () => {
           },
         }
       );
+      await res.data;
 
-      console.log("Update response:", res.data);
-
-      setUser((prev) => ({ ...prev, ...updatedFields }));
-      setFormData((prev) => ({ ...prev, ...updatedFields }));
+      // Update UI and localStorage
+      const updatedUser = { ...user, ...updatedFields };
+      setUser(updatedUser);
+      setFormData(updatedUser);
+      localStorage.setItem("user", JSON.stringify(updatedUser));
       setIsEditing(false);
     } catch (error) {
       console.error("Failed to update profile:", error);

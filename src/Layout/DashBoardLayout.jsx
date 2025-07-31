@@ -45,7 +45,7 @@ function DashboardLayout() {
             <div className="text-center mb-4">
               <div className="text-sm text-gray-600">Logged in as</div>
               <div className="font-semibold text-red-600 capitalize">
-                {user?.role}
+                {user?.role || "User"}
               </div>
             </div>
 
@@ -63,6 +63,7 @@ function DashboardLayout() {
                 active={isActive("/dashboard/profile")}
               />
 
+              {/* Donor Routes */}
               {user?.role === "donor" && (
                 <>
                   <SidebarLink
@@ -80,6 +81,7 @@ function DashboardLayout() {
                 </>
               )}
 
+              {/* Admin Routes */}
               {user?.role === "admin" && (
                 <>
                   <SidebarLink
@@ -97,6 +99,7 @@ function DashboardLayout() {
                 </>
               )}
 
+              {/* Volunteer Routes */}
               {user?.role === "volunteer" && (
                 <SidebarLink
                   to="/dashboard/assigned-requests"
@@ -114,6 +117,7 @@ function DashboardLayout() {
               setSidebarOpen(false);
             }}
             className="text-red-600 font-semibold hover:text-red-800 flex items-center gap-2 transition"
+            aria-label="Logout"
           >
             <FaSignOutAlt /> Logout
           </button>
@@ -165,13 +169,11 @@ function SidebarLink({ to, icon, label, active }) {
   return (
     <Link
       to={to}
-      className={`flex items-center gap-3 px-4 py-2 rounded-lg transition-all
-        ${
-          active
-            ? "bg-red-100 text-red-700 font-semibold border-l-4 border-red-500"
-            : "hover:bg-gray-100"
-        }
-      `}
+      className={`flex items-center gap-3 px-4 py-2 rounded-lg transition-all ${
+        active
+          ? "bg-red-100 text-red-700 font-semibold border-l-4 border-red-500"
+          : "hover:bg-gray-100"
+      }`}
     >
       {icon} {label}
     </Link>

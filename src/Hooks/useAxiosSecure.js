@@ -1,20 +1,50 @@
 import axios from "axios";
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useMemo } from "react";
 import AuthContext from "../Context/AuthContext";
 
 const useAxiosSecure = () => {
-  const { user } = useContext(AuthContext);
-  console.log("🚀 ~ useAxiosSecure ~ accessToken:", user.accessToken);
-  const instance = axios.create({
-    baseURL: "https://pulse-point-server-blue.vercel.app/",
-    headers: {
-      Authorization: `Bearer ${user.accessToken}`,
-    },
-  });
+  const { user, logout } = useContext(AuthContext);
 
-  useEffect(() => {}, []);
+  // Create axios instance only once
+  const axiosInstance = useMemo(() => {
+    const instance = axios.create({
+      baseURL: "https://pulse-point-server-blue.vercel.app/",
+    });
+    return instance;
+  }, []);
 
-  return instance;
+  useEffect(() => {
+    // Add interceptors after instance is created
+    const requestInterceptor = axiosInstance.interceptors.request.use(
+      (config) => {
+        if (user?.accessToken) {
+          config.headers.Authorization = `Bearer ${user.accessToken}`;
+        } else {
+          delete config.headers.Authorization;
+        }
+        return config;
+      },
+      (error) => Promise.reject(error)
+    );
+
+    const responseInterceptor = axiosInstance.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        if (error.response?.status === 401) {
+          logout();
+        }
+        return Promise.reject(error);
+      }
+    );
+
+    return () => {
+      // Cleanup interceptors on unmount or dependencies change
+      axiosInstance.interceptors.request.eject(requestInterceptor);
+      axiosInstance.interceptors.response.eject(responseInterceptor);
+    };
+  }, [user?.accessToken, logout, axiosInstance]);
+
+  return axiosInstance;
 };
 
 export default useAxiosSecure;

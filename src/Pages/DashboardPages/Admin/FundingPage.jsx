@@ -11,7 +11,9 @@ import { toast } from "react-toastify";
 import useAxiosSecure from "../../../Hooks/useAxiosSecure";
 import AuthContext from "../../../Context/AuthContext";
 
-const stripePromise = loadStripe("your_stripe_publishable_key_here");
+const stripePromise = loadStripe(
+  "pk_test_51Rr6BJDeWWmAwpeJJVTLms0U5c59oKGDQxOPiTShssA5fefSW8njltZpcCRV65zKwGrMx2G7cn7RimbvEdSHBNpn00ATblFJxU"
+);
 
 const PAGE_SIZE = 10;
 

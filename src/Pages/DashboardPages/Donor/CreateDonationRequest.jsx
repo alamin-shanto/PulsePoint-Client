@@ -1,7 +1,7 @@
 import React, { useContext, useState, useEffect } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
-import AuthContext from "../../../Context/AuthContext";
+import AuthContext from "./../../../Context/AuthContext";
 
 const bloodGroups = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
 

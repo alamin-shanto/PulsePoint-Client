@@ -13,7 +13,7 @@ const Profile = () => {
     const storedUser = localStorage.getItem("user");
 
     if (!storedUser) {
-      console.warn("No user in localStorage");
+      console.warn("No user data in localStorage");
       setLoading(false);
       return;
     }
@@ -22,14 +22,14 @@ const Profile = () => {
     try {
       parsedUser = JSON.parse(storedUser);
     } catch (error) {
-      console.warn("Invalid user data in localStorage", error);
+      console.warn("Error parsing localStorage user data", error);
       setLoading(false);
       return;
     }
 
     const email = parsedUser?.email;
     if (!email) {
-      console.warn("Email not found in localStorage user");
+      console.warn("No email found in localStorage user");
       setLoading(false);
       return;
     }
@@ -51,7 +51,7 @@ const Profile = () => {
         setLoading(false);
       })
       .catch((err) => {
-        console.error("Error fetching user:", err);
+        console.error("Failed to fetch user data:", err);
         setLoading(false);
       });
   }, [token]);
@@ -77,7 +77,7 @@ const Profile = () => {
       };
 
       const res = await axios.patch(
-        `https://pulse-point-server-blue.vercel.app/users/${encodeURIComponent(
+        `https://pulse-point-server-blue.vercel.app/users/email/${encodeURIComponent(
           user.email
         )}`,
         updatedFields,
@@ -87,14 +87,17 @@ const Profile = () => {
           },
         }
       );
-      await res.data;
 
-      // Update UI and localStorage
-      const updatedUser = { ...user, ...updatedFields };
-      setUser(updatedUser);
-      setFormData(updatedUser);
-      localStorage.setItem("user", JSON.stringify(updatedUser));
-      setIsEditing(false);
+      if (res.status === 200 || res.status === 204) {
+        const updatedUser = { ...user, ...updatedFields };
+        setUser(updatedUser);
+        setFormData(updatedUser);
+        localStorage.setItem("user", JSON.stringify(updatedUser));
+        setIsEditing(false);
+        alert("Profile updated successfully.");
+      } else {
+        throw new Error("Unexpected response status: " + res.status);
+      }
     } catch (error) {
       console.error("Failed to update profile:", error);
       alert("Update failed. Please try again.");

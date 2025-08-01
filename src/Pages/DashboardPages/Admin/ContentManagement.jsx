@@ -1,15 +1,17 @@
+// AdminContentManagement.jsx
 import { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import useAxiosSecure from "../../hooks/useAxiosSecure";
 import { toast } from "react-toastify";
-import AuthContext from "../../Context/AuthContext";
+
+import useAxiosSecure from "../../../Hooks/useAxiosSecure";
+import AuthContext from "../../../Context/AuthContext";
 
 const PAGE_SIZE = 6;
 
-const ContentManagement = () => {
+const AdminContentManagement = () => {
   const navigate = useNavigate();
   const axiosSecure = useAxiosSecure();
-  const { user } = useContext(AuthContext);
+  useContext(AuthContext);
   const [blogs, setBlogs] = useState([]);
   const [statusFilter, setStatusFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
@@ -27,25 +29,18 @@ const ContentManagement = () => {
     fetchBlogs();
   }, [axiosSecure]);
 
-  // Filtering blogs by status
   const filteredBlogs =
     statusFilter === "all"
       ? blogs
       : blogs.filter((blog) => blog.status === statusFilter);
 
-  // Pagination logic
   const totalPages = Math.ceil(filteredBlogs.length / PAGE_SIZE);
   const paginatedBlogs = filteredBlogs.slice(
     (currentPage - 1) * PAGE_SIZE,
     currentPage * PAGE_SIZE
   );
 
-  // Publish/unpublish blog
   const togglePublish = async (blog) => {
-    if (user.role !== "admin") {
-      toast.error("Only admins can change blog status");
-      return;
-    }
     const newStatus = blog.status === "draft" ? "published" : "draft";
     try {
       await axiosSecure.patch(`/blogs/${blog._id}/status`, {
@@ -62,12 +57,7 @@ const ContentManagement = () => {
     }
   };
 
-  // Delete blog
   const deleteBlog = async (id) => {
-    if (user.role !== "admin") {
-      toast.error("Only admins can delete blogs");
-      return;
-    }
     const confirmDelete = window.confirm(
       "Are you sure you want to delete this blog?"
     );
@@ -84,7 +74,7 @@ const ContentManagement = () => {
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold">Content Management</h2>
+        <h2 className="text-2xl font-bold">Admin Content Management</h2>
         <button
           onClick={() => navigate("/dashboard/content-management/add-blog")}
           className="btn btn-primary"
@@ -93,7 +83,6 @@ const ContentManagement = () => {
         </button>
       </div>
 
-      {/* Filter */}
       <div className="mb-4">
         <label htmlFor="statusFilter" className="mr-2 font-medium">
           Filter by Status:
@@ -113,7 +102,6 @@ const ContentManagement = () => {
         </select>
       </div>
 
-      {/* Blog List */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {paginatedBlogs.length === 0 && (
           <p className="col-span-full text-center text-gray-500">
@@ -146,31 +134,26 @@ const ContentManagement = () => {
                 {blog.status}
               </span>
               <div className="flex gap-2">
-                {user.role === "admin" && (
-                  <>
-                    <button
-                      onClick={() => togglePublish(blog)}
-                      className={`btn btn-sm ${
-                        blog.status === "draft" ? "btn-success" : "btn-warning"
-                      }`}
-                    >
-                      {blog.status === "draft" ? "Publish" : "Unpublish"}
-                    </button>
-                    <button
-                      onClick={() => deleteBlog(blog._id)}
-                      className="btn btn-sm btn-error"
-                    >
-                      Delete
-                    </button>
-                  </>
-                )}
+                <button
+                  onClick={() => togglePublish(blog)}
+                  className={`btn btn-sm ${
+                    blog.status === "draft" ? "btn-success" : "btn-warning"
+                  }`}
+                >
+                  {blog.status === "draft" ? "Publish" : "Unpublish"}
+                </button>
+                <button
+                  onClick={() => deleteBlog(blog._id)}
+                  className="btn btn-sm btn-error"
+                >
+                  Delete
+                </button>
               </div>
             </div>
           </div>
         ))}
       </div>
 
-      {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex justify-center mt-6 space-x-3">
           <button
@@ -204,4 +187,4 @@ const ContentManagement = () => {
   );
 };
 
-export default ContentManagement;
+export default AdminContentManagement;

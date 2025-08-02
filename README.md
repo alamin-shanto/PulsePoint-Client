@@ -1,70 +1,80 @@
 # Pulse Point
 
-![Pulse Point Logo](https://res.cloudinary.com/duic0gfkw/image/upload/v1754083513/avatar-default-svgrepo-com_thzca7.svg)
+**Pulse Point** is a full-featured blood donation web application designed to bridge the gap between donors, recipients, volunteers, and administrators — creating a seamless and efficient system to save lives.
 
-**Pulse Point** is a comprehensive, user-friendly web application dedicated to connecting blood donors, recipients, and volunteers seamlessly. Our mission is to facilitate timely and efficient blood donations, save lives, and build a caring community.
-
----
-
-## 🚀 Features
-
-- **User Roles & Permissions:**
-
-  - **Donors:** Manage and track personal blood donation requests, create new requests.
-  - **Volunteers:** View and manage assigned donation requests.
-  - **Admins:** Oversee and manage users, donation requests, and overall system health.
-
-- **Profile Management:**  
-  Users can update their profile information including name, blood group, location (division & district), and avatar.
-
-- **Secure Authentication:**  
-  JWT-based secure login and authorization ensure privacy and data protection.
-
-- **Responsive Dashboard:**  
-  A clean, visually appealing dashboard that adapts beautifully across devices with role-based dynamic menus.
-
-- **Donation Request Workflow:**  
-  Donors create requests, volunteers get assigned requests, and admins monitor all activities.
-
-- **Real-time Notifications:**  
-  Important alerts and updates via toast notifications keep users informed instantly.
+![Pulse Point Banner](https://res.cloudinary.com/duic0gfkw/image/upload/v1754083513/avatar-default-svgrepo-com_thzca7.svg)
 
 ---
 
-## 📱 User Roles Overview
+## 🌟 Features
 
-| Role          | Capabilities                           |
-| ------------- | -------------------------------------- |
-| **Donor**     | Create/view own donation requests      |
-| **Volunteer** | Manage assigned donation requests      |
-| **Admin**     | Manage all users and donation requests |
-
----
-
-## 🛠 Technology Stack
-
-- **Frontend:** React.js with React Router, React Icons, React Toastify for notifications
-- **Backend:** Node.js with Express.js (JWT authentication, REST API)
-- **Database:** MongoDB (cloud or local)
-- **Styling:** Tailwind CSS for a modern, responsive UI
+- 🔐 **JWT Authentication & Role-based Access**
+- 👤 **Profile Management with Editable Fields**
+- 🩸 **Create & Manage Blood Donation Requests**
+- 🧑‍🤝‍🧑 **Volunteer Request Handling**
+- 🛠 **Admin Dashboard for User & Request Management**
+- 📱 **Fully Responsive Design**
+- 🧾 **Funding Page with Payment Integration (Stripe)**
+- 🔔 **Real-Time Notifications with React Toastify**
 
 ---
 
-## 🎨 Design Highlights
+## 🧩 Tech Stack
 
-- Vibrant, modern dashboard layout with intuitive navigation
-- Role-specific sidebars with icons for clear, fast access
-- Smooth animations and transitions for enhanced user experience
-- Gradient backgrounds and shadow effects to create depth and focus
-- Mobile-first design for accessibility on all devices
+| Tech           | Purpose                           |
+| -------------- | --------------------------------- |
+| React.js       | Frontend UI Framework             |
+| Tailwind CSS   | Styling (fully responsive)        |
+| React Router   | Page Routing                      |
+| React Toastify | Alert Messages & Notifications    |
+| Node.js        | Backend Server (Express.js)       |
+| MongoDB        | NoSQL Database                    |
+| Firebase Auth  | Optional user identity management |
+| Stripe         | Payment Integration               |
+| Vercel         | Deployment (Frontend + API)       |
 
 ---
 
-## ⚡ Getting Started
+## 👥 User Roles & Access
 
-1. **Clone the repo:**
+| Role          | Abilities                                                |
+| ------------- | -------------------------------------------------------- |
+| **Donor**     | View & manage personal donation requests, update profile |
+| **Volunteer** | See assigned requests, update progress                   |
+| **Admin**     | Manage all users, requests, and funding history          |
 
-   ```bash
-   git clone https://github.com/yourusername/pulse-point.git
-   cd pulse-point
-   ```
+---
+
+## 🧭 Project Structure
+
+pulse-point/
+│
+├── client/ (React App)
+│ ├── pages/
+│ ├── components/
+│ ├── context/
+│ └── App.jsx
+│
+├── server/ (Express API)
+│ ├── routes/
+│ ├── controllers/
+│ └── index.js
+│
+├── .env
+└── README.md
+
+💡 Notable UX Highlights
+🎨 Custom-styled dashboard with role-based sidebar
+
+🖼 User avatar with default placeholder
+
+📲 Mobile-first UI with smooth toggle sidebar
+
+✅ Toast messages for updates, warnings, and errors
+
+💬 Fully styled forms and intuitive interactions
+
+📄 License
+This project is licensed under the MIT License.
+
+“Donate Blood, Save Lives — Be a Pulse in Someone’s Life”

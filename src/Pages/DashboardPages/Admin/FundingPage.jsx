@@ -79,22 +79,41 @@ const CheckoutForm = ({ amount, onSuccess, onCancel }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <CardElement className="border p-2 rounded" />
-      <div className="flex justify-end gap-2">
+    <form onSubmit={handleSubmit} className="space-y-5">
+      <CardElement
+        options={{
+          style: {
+            base: {
+              fontSize: "16px",
+              color: "#333",
+              "::placeholder": {
+                color: "#999",
+              },
+              fontFamily: '"Inter", sans-serif',
+              padding: "10px 12px",
+            },
+            invalid: {
+              color: "#e53e3e",
+            },
+          },
+          hidePostalCode: true,
+        }}
+        className="border border-gray-300 rounded-md p-3"
+      />
+      <div className="flex justify-end gap-3">
         <button
           type="button"
           onClick={onCancel}
-          className="px-4 py-2 border rounded"
+          className="px-5 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-100 transition"
         >
           Cancel
         </button>
         <button
           type="submit"
           disabled={!stripe || processing}
-          className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 disabled:opacity-50"
+          className="bg-red-600 text-white px-5 py-2 rounded-md hover:bg-red-700 disabled:opacity-50 transition"
         >
-          {processing ? "Processing..." : "Pay"}
+          {processing ? "Processing..." : `Pay $${amount}`}
         </button>
       </div>
     </form>
@@ -118,7 +137,7 @@ const Modal = ({ children, onClose }) => {
 
   return ReactDOM.createPortal(
     <div
-      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+      className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50"
       role="dialog"
       aria-modal="true"
     >
@@ -129,7 +148,7 @@ const Modal = ({ children, onClose }) => {
       >
         <div
           id="modal-container"
-          className="bg-white p-6 rounded-lg w-96 shadow relative"
+          className="bg-white p-7 rounded-2xl w-full max-w-md shadow-lg relative"
         >
           {children}
         </div>
@@ -169,12 +188,12 @@ const FundingPage = () => {
   }, [currentPage, axiosSecure, refreshFundings]);
 
   return (
-    <div className="max-w-6xl mx-auto p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Funding</h1>
+    <div className="max-w-7xl mx-auto p-8">
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-4xl font-extrabold text-red-700">Funding</h1>
         <button
           onClick={() => setShowModal(true)}
-          className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+          className="bg-red-600 text-white px-6 py-3 rounded-xl font-semibold shadow hover:bg-red-700 transition"
         >
           Give Fund
         </button>
@@ -184,19 +203,21 @@ const FundingPage = () => {
         <Modal onClose={() => setShowModal(false)}>
           <button
             onClick={() => setShowModal(false)}
-            className="absolute top-2 right-3 text-gray-500 hover:text-black"
+            className="absolute top-4 right-4 text-gray-400 hover:text-red-600 text-2xl font-bold"
             aria-label="Close modal"
           >
-            ✕
+            &times;
           </button>
-          <h2 className="text-xl font-semibold mb-4">Enter Amount</h2>
+          <h2 className="text-2xl font-semibold mb-6 text-center text-red-700">
+            Enter Amount to Fund
+          </h2>
           <input
             type="number"
             value={amountToFund}
             min="1"
             onChange={(e) => setAmountToFund(e.target.value)}
             placeholder="Amount in USD"
-            className="w-full border px-3 py-2 rounded mb-4"
+            className="w-full border border-gray-300 rounded-lg px-4 py-3 mb-6 focus:outline-none focus:ring-2 focus:ring-red-500"
             autoFocus
           />
           {amountToFund && +amountToFund > 0 && (
@@ -217,40 +238,57 @@ const FundingPage = () => {
       )}
 
       {loading ? (
-        <p>Loading fundings...</p>
+        <p className="text-center py-12 text-red-600 font-semibold">
+          Loading fundings...
+        </p>
       ) : fundings.length === 0 ? (
-        <p>No funding records found.</p>
+        <p className="text-center py-12 text-gray-500 text-lg">
+          No funding records found.
+        </p>
       ) : (
         <>
-          <table className="w-full border border-gray-300 rounded-lg">
-            <thead className="bg-gray-100">
-              <tr>
-                <th className="p-3 border">Name</th>
-                <th className="p-3 border">Amount (USD)</th>
-                <th className="p-3 border">Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              {fundings.map((fund) => (
-                <tr key={fund._id} className="text-center border-t">
-                  <td className="p-3 border">
-                    {fund.userName || fund.user?.name || "Anonymous"}
-                  </td>
-                  <td className="p-3 border">${fund.amount.toFixed(2)}</td>
-                  <td className="p-3 border">
-                    {new Date(fund.date).toLocaleDateString()}
-                  </td>
+          <div className="overflow-x-auto rounded-xl shadow-lg border border-red-100">
+            <table className="w-full text-center min-w-[480px] border-collapse">
+              <thead className="bg-red-50">
+                <tr>
+                  <th className="py-3 px-6 text-red-700 font-semibold border-b border-red-200">
+                    Name
+                  </th>
+                  <th className="py-3 px-6 text-red-700 font-semibold border-b border-red-200">
+                    Amount (USD)
+                  </th>
+                  <th className="py-3 px-6 text-red-700 font-semibold border-b border-red-200">
+                    Date
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {fundings.map((fund) => (
+                  <tr
+                    key={fund._id}
+                    className="border-t border-red-100 hover:bg-red-50 transition"
+                  >
+                    <td className="py-4 px-6 font-medium text-gray-800">
+                      {fund.userName || fund.user?.name || "Anonymous"}
+                    </td>
+                    <td className="py-4 px-6 text-red-600 font-semibold">
+                      ${fund.amount.toFixed(2)}
+                    </td>
+                    <td className="py-4 px-6 text-gray-600">
+                      {new Date(fund.date).toLocaleDateString()}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
           {totalPages > 1 && (
-            <div className="mt-4 flex justify-center gap-2">
+            <div className="mt-6 flex justify-center gap-3">
               <button
                 onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
                 disabled={currentPage === 1}
-                className="px-3 py-1 border rounded disabled:opacity-50"
+                className="px-4 py-2 rounded border border-red-300 text-red-600 font-semibold hover:bg-red-50 disabled:opacity-50 transition"
               >
                 Prev
               </button>
@@ -258,8 +296,10 @@ const FundingPage = () => {
                 <button
                   key={i}
                   onClick={() => setCurrentPage(i + 1)}
-                  className={`px-3 py-1 border rounded ${
-                    currentPage === i + 1 ? "bg-red-600 text-white" : ""
+                  className={`px-4 py-2 rounded border font-semibold transition ${
+                    currentPage === i + 1
+                      ? "bg-red-600 text-white border-red-600"
+                      : "border-red-300 text-red-600 hover:bg-red-50"
                   }`}
                 >
                   {i + 1}
@@ -270,7 +310,7 @@ const FundingPage = () => {
                   setCurrentPage((p) => Math.min(p + 1, totalPages))
                 }
                 disabled={currentPage === totalPages}
-                className="px-3 py-1 border rounded disabled:opacity-50"
+                className="px-4 py-2 rounded border border-red-300 text-red-600 font-semibold hover:bg-red-50 disabled:opacity-50 transition"
               >
                 Next
               </button>

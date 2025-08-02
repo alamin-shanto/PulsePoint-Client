@@ -1,7 +1,6 @@
 import { useState, useEffect, useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import AuthContext from "../../Context/AuthContext";
-
 import { toast } from "react-toastify";
 import useAxiosSecure from "../../Hooks/useAxiosSecure";
 
@@ -56,11 +55,11 @@ const DonationRequestDetails = () => {
         donorEmail: user.email,
       });
 
-      toast.success("Donation confirmed, status updated to In Progress");
+      toast.success("Donation confirmed. Status set to In Progress.");
       setRequest((prev) => ({ ...prev, status: "inprogress" }));
       setShowModal(false);
     } catch (err) {
-      toast.error("Failed to confirm donation");
+      toast.error("Failed to confirm donation.");
       console.error(err);
     } finally {
       setDonating(false);
@@ -81,110 +80,141 @@ const DonationRequestDetails = () => {
     );
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6 text-red-700">
-        Donation Request Details
-      </h1>
+    <div className="min-h-screen bg-gradient-to-br from-rose-50 via-white to-pink-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-4xl mx-auto">
+        <div className="mb-8 text-center">
+          <h1 className="text-4xl font-extrabold text-red-700 mb-2">
+            🩸 Donation Request Details
+          </h1>
+          <span className="block w-20 h-1 bg-red-600 mx-auto rounded-full"></span>
+        </div>
 
-      <div className="border rounded-lg shadow p-6 mb-6 bg-white">
-        <h2 className="text-2xl font-semibold mb-4">{request.recipientName}</h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700">
-          <div>
-            <p>
-              <strong>Blood Group:</strong> {request.bloodGroup}
-            </p>
-            <p>
-              <strong>Location:</strong> {request.district}, {request.division}
-            </p>
-            <p>
-              <strong>Date:</strong> {request.donationDate}
-            </p>
-            <p>
-              <strong>Time:</strong> {request.donationTime}
+        <div className="bg-white rounded-2xl shadow-xl border border-red-100 p-8 space-y-6">
+          <div className="text-center">
+            <h2 className="text-3xl font-bold text-gray-800 mb-1">
+              {request.recipientName}
+            </h2>
+            <p className="text-sm text-gray-500">
+              📅 {request.donationDate} ⏰ {request.donationTime}
             </p>
           </div>
-          <div>
-            <p>
-              <strong>Contact Number:</strong> {request.contactNumber || "N/A"}
-            </p>
-            <p>
-              <strong>Status:</strong>{" "}
-              <span
-                className={`badge ${
-                  request.status === "pending"
-                    ? "badge-warning"
-                    : request.status === "inprogress"
-                    ? "badge-info"
-                    : request.status === "completed"
-                    ? "badge-success"
-                    : "badge-error"
-                } capitalize`}
-              >
-                {request.status}
-              </span>
-            </p>
-            <p>
-              <strong>Additional Notes:</strong>{" "}
-              {request.notes || "No additional notes"}
-            </p>
+
+          <div className="grid md:grid-cols-2 gap-6 text-gray-700">
+            <div className="space-y-2">
+              <p>
+                <span className="font-semibold">Blood Group:</span>{" "}
+                <span className="text-red-600 font-bold">
+                  {request.bloodGroup}
+                </span>
+              </p>
+              <p>
+                <span className="font-semibold">Location:</span>{" "}
+                {request.district}, {request.division}
+              </p>
+              <p>
+                <span className="font-semibold">Contact Number:</span>{" "}
+                {request.contactNumber || "N/A"}
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <p>
+                <span className="font-semibold">Status:</span>{" "}
+                <span
+                  className={`inline-block px-3 py-1 rounded-full text-sm font-semibold capitalize ${
+                    request.status === "pending"
+                      ? "bg-yellow-100 text-yellow-800"
+                      : request.status === "inprogress"
+                      ? "bg-blue-100 text-blue-800"
+                      : request.status === "completed"
+                      ? "bg-green-100 text-green-800"
+                      : "bg-red-100 text-red-800"
+                  }`}
+                >
+                  {request.status}
+                </span>
+              </p>
+              <p>
+                <span className="font-semibold">Notes:</span>{" "}
+                {request.notes || "No additional notes."}
+              </p>
+            </div>
           </div>
+
+          <div className="text-center pt-4">
+            <button
+              onClick={() => setShowModal(true)}
+              disabled={request.status !== "pending"}
+              className={`px-6 py-3 rounded-xl font-semibold shadow-md transition ${
+                request.status !== "pending"
+                  ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+                  : "bg-red-600 text-white hover:bg-red-700"
+              }`}
+            >
+              I Want to Donate
+            </button>
+          </div>
+        </div>
+
+        <div className="text-center mt-10">
+          <button
+            onClick={() => navigate(-1)}
+            className="mt-4 px-4 py-2 rounded-md bg-white text-red-600 border border-red-300 hover:bg-red-50 shadow"
+          >
+            ⬅️ Back to Requests
+          </button>
         </div>
       </div>
 
-      <button
-        onClick={() => setShowModal(true)}
-        disabled={request.status !== "pending"}
-        className={`btn btn-primary ${
-          request.status !== "pending" ? "btn-disabled" : ""
-        }`}
-      >
-        Donate
-      </button>
-
       {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-          <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative">
-            <h3 className="text-xl font-semibold mb-4">Confirm Donation</h3>
-
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center px-4">
+          <div className="bg-white w-full max-w-md p-6 rounded-xl shadow-lg animate-fade-in relative">
+            <h3 className="text-xl font-bold mb-4 text-gray-800">
+              Confirm Donation
+            </h3>
             <form
               onSubmit={(e) => {
                 e.preventDefault();
                 handleDonateConfirm();
               }}
+              className="space-y-4"
             >
-              <div className="mb-4">
-                <label className="block font-medium mb-1">Donor Name</label>
+              <div>
+                <label className="block text-gray-600 font-medium mb-1">
+                  Donor Name
+                </label>
                 <input
                   type="text"
                   value={user.displayName || user.name || "Donor"}
                   readOnly
-                  className="input input-bordered w-full bg-gray-100 cursor-not-allowed"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-100 text-gray-700"
                 />
               </div>
-              <div className="mb-4">
-                <label className="block font-medium mb-1">Donor Email</label>
+              <div>
+                <label className="block text-gray-600 font-medium mb-1">
+                  Donor Email
+                </label>
                 <input
                   type="email"
                   value={user.email}
                   readOnly
-                  className="input input-bordered w-full bg-gray-100 cursor-not-allowed"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-100 text-gray-700"
                 />
               </div>
 
-              <div className="flex justify-end space-x-3">
+              <div className="flex justify-end gap-3 pt-4">
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="btn btn-outline"
                   disabled={donating}
+                  className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="btn btn-primary"
+                  className="px-5 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
                   disabled={donating}
                 >
                   {donating ? "Confirming..." : "Confirm"}

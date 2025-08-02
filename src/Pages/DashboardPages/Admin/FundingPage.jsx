@@ -1,4 +1,6 @@
 import { useEffect, useState, useContext } from "react";
+import ReactDOM from "react-dom";
+import FocusTrap from "focus-trap-react";
 import { loadStripe } from "@stripe/stripe-js";
 import {
   Elements,
@@ -31,13 +33,18 @@ const CheckoutForm = ({ amount, onSuccess, onCancel }) => {
     setProcessing(true);
 
     try {
-      // Get client secret from backend
       const res = await axiosSecure.post("/create-payment-intent", {
-        amount: parseFloat(amount),
+        amount: Math.round(parseFloat(amount)),
       });
-      const clientSecret = res.data.clientSecret;
 
-      const paymentResult = await stripe.confirmCardPayment(clientSecret, {
+      const clientSecret = res.data.clientSecret;
+      if (!clientSecret) {
+        toast.error("Failed to get client secret.");
+        setProcessing(false);
+        return;
+      }
+
+      const result = await stripe.confirmCardPayment(clientSecret, {
         payment_method: {
           card: elements.getElement(CardElement),
           billing_details: {
@@ -47,12 +54,12 @@ const CheckoutForm = ({ amount, onSuccess, onCancel }) => {
         },
       });
 
-      if (paymentResult.error) {
-        toast.error(paymentResult.error.message);
-      } else if (paymentResult.paymentIntent.status === "succeeded") {
-        // Save funding to DB
+      if (result.error) {
+        toast.error(result.error.message || "Payment error.");
+      } else if (result.paymentIntent.status === "succeeded") {
+        // Save funding info in your DB
         await axiosSecure.post("/fundings", {
-          userId: user._id,
+          userId: user._id || user.uid,
           userName: user.name,
           email: user.email,
           amount: parseFloat(amount),
@@ -61,9 +68,11 @@ const CheckoutForm = ({ amount, onSuccess, onCancel }) => {
 
         toast.success("Thank you for your fund!");
         onSuccess();
+      } else {
+        toast.error("Payment did not succeed.");
       }
     } catch (err) {
-      toast.error("Payment failed.", err.message);
+      toast.error("Payment failed: " + err.message);
     } finally {
       setProcessing(false);
     }
@@ -92,15 +101,54 @@ const CheckoutForm = ({ amount, onSuccess, onCancel }) => {
   );
 };
 
+const Modal = ({ children, onClose }) => {
+  const modalRoot = document.getElementById("modal-root");
+
+  useEffect(() => {
+    const handleEsc = (e) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+    document.addEventListener("keydown", handleEsc);
+    return () => document.removeEventListener("keydown", handleEsc);
+  }, [onClose]);
+
+  if (!modalRoot) return null;
+
+  return ReactDOM.createPortal(
+    <div
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+      role="dialog"
+      aria-modal="true"
+    >
+      <FocusTrap
+        focusTrapOptions={{
+          fallbackFocus: "#modal-container",
+        }}
+      >
+        <div
+          id="modal-container"
+          className="bg-white p-6 rounded-lg w-96 shadow relative"
+        >
+          {children}
+        </div>
+      </FocusTrap>
+    </div>,
+    modalRoot
+  );
+};
+
 const FundingPage = () => {
   const axiosSecure = useAxiosSecure();
-  const { user } = useContext(AuthContext);
+  useContext(AuthContext); // prevent unused warning
   const [fundings, setFundings] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [amountToFund, setAmountToFund] = useState("");
+  const [refreshFundings, setRefreshFundings] = useState(false);
 
   useEffect(() => {
     const fetchFundings = async () => {
@@ -112,13 +160,13 @@ const FundingPage = () => {
         setFundings(res.data.fundings || []);
         setTotalPages(res.data.totalPages || 1);
       } catch (err) {
-        toast.error("Failed to load fundings.", err.message);
+        toast.error("Failed to load fundings: " + err.message);
       } finally {
         setLoading(false);
       }
     };
     fetchFundings();
-  }, [currentPage, axiosSecure]);
+  }, [currentPage, axiosSecure, refreshFundings]);
 
   return (
     <div className="max-w-6xl mx-auto p-6">
@@ -132,43 +180,42 @@ const FundingPage = () => {
         </button>
       </div>
 
-      {/* Stripe Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg w-96 shadow relative">
-            <button
-              onClick={() => setShowModal(false)}
-              className="absolute top-2 right-3 text-gray-500 hover:text-black"
-            >
-              ✕
-            </button>
-            <h2 className="text-xl font-semibold mb-4">Enter Amount</h2>
-            <input
-              type="number"
-              value={amountToFund}
-              min="1"
-              onChange={(e) => setAmountToFund(e.target.value)}
-              placeholder="Amount in USD"
-              className="w-full border px-3 py-2 rounded mb-4"
-            />
-            {amountToFund && +amountToFund > 0 && (
-              <Elements stripe={stripePromise}>
-                <CheckoutForm
-                  amount={amountToFund}
-                  onSuccess={() => {
-                    setShowModal(false);
-                    setAmountToFund("");
-                    setCurrentPage(1);
-                  }}
-                  onCancel={() => setShowModal(false)}
-                />
-              </Elements>
-            )}
-          </div>
-        </div>
+        <Modal onClose={() => setShowModal(false)}>
+          <button
+            onClick={() => setShowModal(false)}
+            className="absolute top-2 right-3 text-gray-500 hover:text-black"
+            aria-label="Close modal"
+          >
+            ✕
+          </button>
+          <h2 className="text-xl font-semibold mb-4">Enter Amount</h2>
+          <input
+            type="number"
+            value={amountToFund}
+            min="1"
+            onChange={(e) => setAmountToFund(e.target.value)}
+            placeholder="Amount in USD"
+            className="w-full border px-3 py-2 rounded mb-4"
+            autoFocus
+          />
+          {amountToFund && +amountToFund > 0 && (
+            <Elements stripe={stripePromise}>
+              <CheckoutForm
+                amount={amountToFund}
+                onSuccess={() => {
+                  setShowModal(false);
+                  setAmountToFund("");
+                  setCurrentPage(1); // go to first page to see latest
+                  setRefreshFundings((prev) => !prev); // trigger refresh
+                }}
+                onCancel={() => setShowModal(false)}
+              />
+            </Elements>
+          )}
+        </Modal>
       )}
 
-      {/* Table */}
       {loading ? (
         <p>Loading fundings...</p>
       ) : fundings.length === 0 ? (
@@ -178,7 +225,7 @@ const FundingPage = () => {
           <table className="w-full border border-gray-300 rounded-lg">
             <thead className="bg-gray-100">
               <tr>
-                <th className="p-3 border">`{user}`</th>
+                <th className="p-3 border">Name</th>
                 <th className="p-3 border">Amount (USD)</th>
                 <th className="p-3 border">Date</th>
               </tr>
@@ -198,7 +245,6 @@ const FundingPage = () => {
             </tbody>
           </table>
 
-          {/* Pagination */}
           {totalPages > 1 && (
             <div className="mt-4 flex justify-center gap-2">
               <button

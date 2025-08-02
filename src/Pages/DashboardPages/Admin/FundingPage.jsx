@@ -60,7 +60,7 @@ const CheckoutForm = ({ amount, onSuccess, onCancel }) => {
         });
 
         toast.success("Thank you for your fund!");
-        onSuccess(); // reset form and close modal
+        onSuccess();
       }
     } catch (err) {
       toast.error("Payment failed.", err.message);
@@ -158,7 +158,7 @@ const FundingPage = () => {
                   onSuccess={() => {
                     setShowModal(false);
                     setAmountToFund("");
-                    setCurrentPage(1); // Refresh data
+                    setCurrentPage(1);
                   }}
                   onCancel={() => setShowModal(false)}
                 />

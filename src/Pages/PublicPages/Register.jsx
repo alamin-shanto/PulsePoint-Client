@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import { auth } from "../../Firebase/firebase.config";
 import { createUserWithEmailAndPassword } from "firebase/auth";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const BLOOD_GROUPS = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
 
@@ -30,8 +32,6 @@ function Register() {
   const [avatarPreview, setAvatarPreview] = useState(null);
 
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [successMsg, setSuccessMsg] = useState("");
 
   useEffect(() => {
     async function loadData() {
@@ -71,7 +71,7 @@ function Register() {
         setDistrictsMap(map);
       } catch (err) {
         console.error("Failed to load divisions or districts:", err);
-        setError("Failed to load divisions or districts");
+        toast.error("Failed to load divisions or districts");
       }
     }
     loadData();
@@ -88,7 +88,6 @@ function Register() {
   }, [formData.division, districtsMap]);
 
   const handleChange = (e) => {
-    setError("");
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
@@ -96,10 +95,9 @@ function Register() {
     const file = e.target.files[0];
     if (file) {
       if (file.size > 100 * 1024) {
-        setError("Avatar file size should be less than 100KB");
+        toast.error("Avatar file size should be less than 100KB");
         return;
       }
-      setError("");
       setAvatarUrl("");
       const reader = new FileReader();
       reader.onloadend = () => setAvatarPreview(reader.result);
@@ -109,7 +107,6 @@ function Register() {
 
   const handleAvatarUrlChange = (e) => {
     const url = e.target.value.trim();
-    setError("");
     setAvatarUrl(url);
     setAvatarPreview(url || null);
   };
@@ -117,8 +114,18 @@ function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Password validation regex:
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*]).{6,}$/;
+
+    if (!passwordRegex.test(formData.password)) {
+      toast.error(
+        "Password must be at least 6 characters long and include at least one uppercase letter, one lowercase letter, and one special character (!@#$%^&*)."
+      );
+      return;
+    }
+
     if (formData.password !== formData.confirm_password) {
-      setError("Passwords do not match");
+      toast.error("Passwords do not match");
       return;
     }
 
@@ -130,7 +137,7 @@ function Register() {
       !formData.district ||
       !formData.password
     ) {
-      setError("Please fill all required fields");
+      toast.error("Please fill all required fields");
       return;
     }
 
@@ -168,7 +175,7 @@ function Register() {
       const data = await res.json();
 
       if (res.ok && !data.message) {
-        setSuccessMsg("Registration successful!");
+        toast.success("Registration successful!");
         setFormData({
           email: "",
           name: "",
@@ -185,10 +192,10 @@ function Register() {
           navigate("/login");
         }, 1500);
       } else {
-        setError(data.message || "Failed to save user data.");
+        toast.error(data.message || "Failed to save user data.");
       }
     } catch (err) {
-      setError(err.message || "Registration failed.");
+      toast.error(err.message || "Registration failed.");
     } finally {
       setLoading(false);
     }
@@ -199,10 +206,6 @@ function Register() {
       <h2 className="text-3xl font-bold mb-6 text-center text-red-600">
         Create Your Donor Profile
       </h2>
-      {error && <p className="mb-4 text-red-500 font-medium">{error}</p>}
-      {successMsg && (
-        <p className="mb-4 text-green-600 font-medium">{successMsg}</p>
-      )}
 
       <form onSubmit={handleSubmit} className="space-y-4" noValidate>
         <input
@@ -368,6 +371,20 @@ function Register() {
           </button>
         </p>
       </div>
+
+      {/* Toast container */}
+      <ToastContainer
+        position="top-right"
+        autoClose={4000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
     </div>
   );
 }

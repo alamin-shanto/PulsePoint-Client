@@ -2,7 +2,6 @@
 import { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-
 import useAxiosSecure from "../../../Hooks/useAxiosSecure";
 import AuthContext from "../../../Context/AuthContext";
 
@@ -11,7 +10,8 @@ const PAGE_SIZE = 6;
 const AdminContentManagement = () => {
   const navigate = useNavigate();
   const axiosSecure = useAxiosSecure();
-  useContext(AuthContext);
+  const { user } = useContext(AuthContext);
+
   const [blogs, setBlogs] = useState([]);
   const [statusFilter, setStatusFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
@@ -22,12 +22,17 @@ const AdminContentManagement = () => {
         const res = await axiosSecure.get("/blogs");
         setBlogs(res.data);
       } catch (error) {
-        toast.error("Failed to load blogs", error.message);
+        console.error(error);
+        toast.error("Failed to load blogs");
       }
     };
 
     fetchBlogs();
   }, [axiosSecure]);
+
+  if (!user || user.role !== "admin") {
+    return <p className="text-red-600 text-center mt-6">Unauthorized access</p>;
+  }
 
   const filteredBlogs =
     statusFilter === "all"
@@ -72,9 +77,11 @@ const AdminContentManagement = () => {
   };
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold">Admin Content Management</h2>
+    <div className="p-6 max-w-7xl mx-auto min-h-screen">
+      <div className="flex justify-between items-center flex-wrap gap-4 mb-6">
+        <h2 className="text-2xl sm:text-3xl font-bold text-red-700">
+          Admin Content Management
+        </h2>
         <button
           onClick={() => navigate("/dashboard/content-management/add-blog")}
           className="btn btn-primary"
@@ -83,7 +90,7 @@ const AdminContentManagement = () => {
         </button>
       </div>
 
-      <div className="mb-4">
+      <div className="mb-6">
         <label htmlFor="statusFilter" className="mr-2 font-medium">
           Filter by Status:
         </label>
@@ -118,12 +125,14 @@ const AdminContentManagement = () => {
               alt={blog.title}
               className="w-full h-40 object-cover rounded-md mb-3"
             />
-            <h3 className="font-semibold text-lg mb-1">{blog.title}</h3>
+            <h3 className="font-semibold text-lg mb-1 truncate">
+              {blog.title}
+            </h3>
             <p
               className="text-sm text-gray-600 mb-2 line-clamp-3"
               dangerouslySetInnerHTML={{ __html: blog.content }}
             />
-            <div className="mt-auto flex justify-between items-center">
+            <div className="mt-auto flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
               <span
                 className={`badge ${
                   blog.status === "published"
@@ -133,7 +142,7 @@ const AdminContentManagement = () => {
               >
                 {blog.status}
               </span>
-              <div className="flex gap-2">
+              <div className="flex gap-2 flex-wrap">
                 <button
                   onClick={() => togglePublish(blog)}
                   className={`btn btn-sm ${
@@ -141,6 +150,16 @@ const AdminContentManagement = () => {
                   }`}
                 >
                   {blog.status === "draft" ? "Publish" : "Unpublish"}
+                </button>
+                <button
+                  onClick={() =>
+                    navigate(
+                      `/dashboard/content-management/edit-blog/${blog._id}`
+                    )
+                  }
+                  className="btn btn-sm btn-info"
+                >
+                  Edit
                 </button>
                 <button
                   onClick={() => deleteBlog(blog._id)}
@@ -155,7 +174,7 @@ const AdminContentManagement = () => {
       </div>
 
       {totalPages > 1 && (
-        <div className="flex justify-center mt-6 space-x-3">
+        <div className="flex justify-center items-center mt-8 gap-3">
           <button
             onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
             disabled={currentPage === 1}

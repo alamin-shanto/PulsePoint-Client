@@ -89,7 +89,7 @@ const HomePage = () => {
             </Link>
             {user && (
               <Link
-                to="/funding-links"
+                to="/dashboard/funding"
                 className="hover:text-red-300 transition duration-300"
               >
                 Funding Links

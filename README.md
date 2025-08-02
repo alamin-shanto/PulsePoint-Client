@@ -1,12 +1,70 @@
-# React + Vite
+# Pulse Point
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+![Pulse Point Logo](https://res.cloudinary.com/duic0gfkw/image/upload/v1754083513/avatar-default-svgrepo-com_thzca7.svg)
 
-Currently, two official plugins are available:
+**Pulse Point** is a comprehensive, user-friendly web application dedicated to connecting blood donors, recipients, and volunteers seamlessly. Our mission is to facilitate timely and efficient blood donations, save lives, and build a caring community.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## Expanding the ESLint configuration
+## 🚀 Features
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- **User Roles & Permissions:**
+
+  - **Donors:** Manage and track personal blood donation requests, create new requests.
+  - **Volunteers:** View and manage assigned donation requests.
+  - **Admins:** Oversee and manage users, donation requests, and overall system health.
+
+- **Profile Management:**  
+  Users can update their profile information including name, blood group, location (division & district), and avatar.
+
+- **Secure Authentication:**  
+  JWT-based secure login and authorization ensure privacy and data protection.
+
+- **Responsive Dashboard:**  
+  A clean, visually appealing dashboard that adapts beautifully across devices with role-based dynamic menus.
+
+- **Donation Request Workflow:**  
+  Donors create requests, volunteers get assigned requests, and admins monitor all activities.
+
+- **Real-time Notifications:**  
+  Important alerts and updates via toast notifications keep users informed instantly.
+
+---
+
+## 📱 User Roles Overview
+
+| Role          | Capabilities                           |
+| ------------- | -------------------------------------- |
+| **Donor**     | Create/view own donation requests      |
+| **Volunteer** | Manage assigned donation requests      |
+| **Admin**     | Manage all users and donation requests |
+
+---
+
+## 🛠 Technology Stack
+
+- **Frontend:** React.js with React Router, React Icons, React Toastify for notifications
+- **Backend:** Node.js with Express.js (JWT authentication, REST API)
+- **Database:** MongoDB (cloud or local)
+- **Styling:** Tailwind CSS for a modern, responsive UI
+
+---
+
+## 🎨 Design Highlights
+
+- Vibrant, modern dashboard layout with intuitive navigation
+- Role-specific sidebars with icons for clear, fast access
+- Smooth animations and transitions for enhanced user experience
+- Gradient backgrounds and shadow effects to create depth and focus
+- Mobile-first design for accessibility on all devices
+
+---
+
+## ⚡ Getting Started
+
+1. **Clone the repo:**
+
+   ```bash
+   git clone https://github.com/yourusername/pulse-point.git
+   cd pulse-point
+   ```

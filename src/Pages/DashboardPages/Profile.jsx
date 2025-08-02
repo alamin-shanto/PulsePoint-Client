@@ -130,7 +130,10 @@ const Profile = () => {
 
       <div className="flex flex-col md:flex-row gap-6 items-center">
         <img
-          src={formData.avatar || "https://via.placeholder.com/150"}
+          src={
+            formData.avatar ||
+            "https://res.cloudinary.com/duic0gfkw/image/upload/v1754083513/avatar-default-svgrepo-com_thzca7.svg"
+          }
           alt="avatar"
           className="w-32 h-32 rounded-full border-4 border-red-500 object-cover"
         />

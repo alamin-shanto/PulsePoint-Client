@@ -3,22 +3,22 @@ import { useContext, useEffect, useMemo } from "react";
 import AuthContext from "../Context/AuthContext";
 
 const useAxiosSecure = () => {
-  const { user, logout } = useContext(AuthContext);
+  const { logout } = useContext(AuthContext);
 
   // Create axios instance only once
   const axiosInstance = useMemo(() => {
-    const instance = axios.create({
+    return axios.create({
       baseURL: "https://pulse-point-server-blue.vercel.app/",
     });
-    return instance;
   }, []);
 
   useEffect(() => {
     // Add interceptors after instance is created
     const requestInterceptor = axiosInstance.interceptors.request.use(
       (config) => {
-        if (user?.accessToken) {
-          config.headers.Authorization = `Bearer ${user.accessToken}`;
+        const token = localStorage.getItem("access-token");
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
         } else {
           delete config.headers.Authorization;
         }
@@ -42,7 +42,7 @@ const useAxiosSecure = () => {
       axiosInstance.interceptors.request.eject(requestInterceptor);
       axiosInstance.interceptors.response.eject(responseInterceptor);
     };
-  }, [user?.accessToken, logout, axiosInstance]);
+  }, [logout, axiosInstance]);
 
   return axiosInstance;
 };

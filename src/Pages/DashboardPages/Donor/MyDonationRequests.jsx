@@ -109,16 +109,13 @@ const MyDonationRequests = () => {
                   {req.recipientName}
                 </h3>
                 <p className="text-gray-600">
-                  <span className="font-medium">District:</span>{" "}
-                  {req.recipientDistrict}
+                  <span className="font-medium">Division</span> {req.division}
                 </p>
                 <p className="text-gray-600">
-                  <span className="font-medium">Upazila:</span>{" "}
-                  {req.recipientUpazila}
+                  <span className="font-medium">District:</span> {req.district}
                 </p>
                 <p className="text-gray-600">
-                  <span className="font-medium">Hospital:</span>{" "}
-                  {req.hospitalName}
+                  <span className="font-medium">Hospital:</span> {req.hospital}
                 </p>
                 <p className="text-gray-600">
                   <span className="font-medium">Blood Group:</span>{" "}
@@ -131,8 +128,7 @@ const MyDonationRequests = () => {
                   <span className="font-medium">Time:</span> {req.donationTime}
                 </p>
                 <p className="text-gray-600">
-                  <span className="font-medium">Message:</span>{" "}
-                  {req.requestMessage}
+                  <span className="font-medium">Message:</span> {req.message}
                 </p>
                 <span
                   className={`inline-block mt-3 px-3 py-1 rounded-full text-sm font-medium ${

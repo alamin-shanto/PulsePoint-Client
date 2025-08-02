@@ -66,12 +66,11 @@ const HomePage = () => {
       {/* Responsive Navbar */}
       <nav className="sticky top-0 z-50 bg-gradient-to-r from-red-700 via-red-600 to-red-700 text-white shadow-lg">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          {/* Logo */}
           <Link
             to="/"
             className="font-extrabold text-2xl hover:text-red-300 transition duration-300"
           >
-            BloodConnect
+            Pulse Point
           </Link>
 
           {/* Desktop menu */}
@@ -122,7 +121,10 @@ const HomePage = () => {
                   className="cursor-pointer flex items-center space-x-3 select-none"
                 >
                   <img
-                    src={user.avatar || "/default-avatar.png"}
+                    src={
+                      user.avatar ||
+                      "https://res.cloudinary.com/duic0gfkw/image/upload/v1754083513/avatar-default-svgrepo-com_thzca7.svg"
+                    }
                     alt="avatar"
                     className="w-9 h-9 rounded-full border-2 border-white shadow-md"
                   />
@@ -226,7 +228,10 @@ const HomePage = () => {
               <div className="border border-red-500 rounded-lg p-3">
                 <div className="flex items-center space-x-3 mb-3">
                   <img
-                    src={user.avatar || "/default-avatar.png"}
+                    src={
+                      user.avatar ||
+                      "https://res.cloudinary.com/duic0gfkw/image/upload/v1754083513/avatar-default-svgrepo-com_thzca7.svg"
+                    }
                     alt="avatar"
                     className="w-9 h-9 rounded-full border-2 border-white shadow-md"
                   />
@@ -510,7 +515,7 @@ const HomePage = () => {
       <footer className="bg-gradient-to-r from-red-800 via-red-700 to-red-800 text-white py-12 px-8 mt-auto rounded-t-3xl shadow-inner">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12">
           <div>
-            <h3 className="font-extrabold text-2xl mb-5">BloodConnect</h3>
+            <h3 className="font-extrabold text-2xl mb-5">Pulse Point</h3>
             <p className="text-red-200 max-w-xs leading-relaxed">
               Dedicated to connecting donors and recipients to save lives.
             </p>
@@ -556,7 +561,7 @@ const HomePage = () => {
                 href="mailto:support@bloodconnect.org"
                 className="underline hover:text-white"
               >
-                support@bloodconnect.org
+                support@bPulsePoint.org
               </a>
             </p>
             <p>
@@ -569,7 +574,7 @@ const HomePage = () => {
           </div>
         </div>
         <div className="mt-10 text-center text-red-300 text-sm select-none">
-          &copy; {new Date().getFullYear()} BloodConnect. All rights reserved.
+          &copy; {new Date().getFullYear()} PulsePoint. All rights reserved.
         </div>
       </footer>
     </div>

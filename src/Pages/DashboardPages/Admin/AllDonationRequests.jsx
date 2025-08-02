@@ -11,7 +11,6 @@ const AllDonationRequests = () => {
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [statusFilter, setStatusFilter] = useState("all");
 
-  // 🧠 useQuery must be called unconditionally
   const {
     data: requests = [],
     refetch,
@@ -24,11 +23,10 @@ const AllDonationRequests = () => {
     },
   });
 
-  // ❗ check access after hook calls
   if (!user || user.role !== "admin") {
     return (
-      <div className="p-6 text-center text-red-500 font-semibold">
-        Access Denied. Admins only.
+      <div className="p-6 text-center text-red-600 font-semibold text-lg">
+        🚫 Access Denied — Admins only.
       </div>
     );
   }
@@ -46,10 +44,11 @@ const AllDonationRequests = () => {
 
     try {
       await axiosSecure.delete(`/donation-requests/${id}`);
-      toast.success("Request deleted");
+      toast.success("Request deleted successfully");
       refetch();
     } catch (err) {
-      toast.error("Failed to delete request", err.message);
+      toast.error("Failed to delete request");
+      console.error(err);
     }
   };
 
@@ -64,24 +63,32 @@ const AllDonationRequests = () => {
         status,
         donationDate,
       });
-      toast.success("Request updated");
+      toast.success("Request updated successfully");
       setSelectedRequest(null);
       refetch();
     } catch (err) {
-      toast.error("Failed to update", err.message);
+      toast.error("Failed to update request");
+      console.error(err);
     }
   };
 
   return (
-    <div className="p-4">
-      <h2 className="text-2xl font-bold mb-4">
+    <div className="p-6 max-w-7xl mx-auto">
+      <h2 className="text-3xl font-extrabold text-red-700 mb-8 text-center tracking-wide drop-shadow-md">
         🩸 All Blood Donation Requests (Admin)
       </h2>
 
-      <div className="mb-4 flex items-center gap-4">
-        <label>Status:</label>
+      {/* Status Filter */}
+      <div className="mb-6 flex flex-wrap justify-center items-center gap-6">
+        <label
+          htmlFor="statusFilter"
+          className="text-lg font-semibold text-gray-700"
+        >
+          Filter by Status:
+        </label>
         <select
-          className="select select-bordered select-sm"
+          id="statusFilter"
+          className="select select-bordered select-md max-w-xs shadow-lg hover:shadow-red-400 transition-shadow duration-300 focus:outline-none focus:ring-2 focus:ring-red-400"
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
         >
@@ -94,134 +101,193 @@ const AllDonationRequests = () => {
       </div>
 
       {isLoading ? (
-        <div className="text-center py-10">Loading...</div>
+        <div className="text-center py-14 text-red-600 font-semibold text-xl animate-pulse">
+          Loading requests...
+        </div>
       ) : (
-        <div className="overflow-x-auto bg-white rounded shadow">
-          <table className="table table-zebra w-full">
-            <thead className="bg-red-100">
-              <tr>
-                <th>#</th>
-                <th>Requester</th>
-                <th>Blood Group</th>
-                <th>Location</th>
-                <th>Date</th>
-                <th>Status</th>
-                <th className="text-center">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredRequests.map((req, index) => (
-                <tr key={req._id}>
-                  <td>{index + 1}</td>
-                  <td>
-                    <div className="flex items-center gap-2">
-                      <img
-                        src={req.requesterAvatar || "/default-avatar.png"}
-                        alt="avatar"
-                        className="w-8 h-8 rounded-full"
-                      />
-                      <div>
-                        <p className="font-medium">{req.requesterName}</p>
-                        <p className="text-sm text-gray-500">
-                          {req.requesterEmail}
-                        </p>
-                      </div>
-                    </div>
-                  </td>
-                  <td>{req.bloodGroup}</td>
-                  <td>
-                    {req.district}, {req.upazila}
-                  </td>
-                  <td>{req.donationDate}</td>
-                  <td>
-                    <span
-                      className={`badge ${
-                        req.status === "pending"
-                          ? "badge-warning"
-                          : req.status === "completed"
-                          ? "badge-success"
-                          : req.status === "cancelled"
-                          ? "badge-error"
-                          : "badge-info"
-                      }`}
-                    >
-                      {req.status}
-                    </span>
-                  </td>
-                  <td className="flex justify-center gap-2">
-                    <button
-                      onClick={() => setSelectedRequest(req)}
-                      className="btn btn-sm btn-outline btn-info"
-                    >
-                      <FaEdit />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(req._id)}
-                      className="btn btn-sm btn-outline btn-error"
-                    >
-                      <FaTrash />
-                    </button>
-                  </td>
+        <>
+          <div className="overflow-x-auto rounded-lg shadow-lg border border-red-200">
+            <table className="table-auto w-full min-w-[720px] border-collapse">
+              <thead className="bg-red-50 border-b-2 border-red-300">
+                <tr>
+                  <th className="py-3 px-5 text-left text-gray-700 font-semibold tracking-wide">
+                    #
+                  </th>
+                  <th className="py-3 px-5 text-left text-gray-700 font-semibold tracking-wide">
+                    Requester
+                  </th>
+                  <th className="py-3 px-5 text-left text-gray-700 font-semibold tracking-wide">
+                    Blood Group
+                  </th>
+                  <th className="py-3 px-5 text-left text-gray-700 font-semibold tracking-wide">
+                    Location
+                  </th>
+                  <th className="py-3 px-5 text-left text-gray-700 font-semibold tracking-wide">
+                    Date
+                  </th>
+                  <th className="py-3 px-5 text-left text-gray-700 font-semibold tracking-wide">
+                    Status
+                  </th>
+                  <th className="py-3 px-5 text-center text-gray-700 font-semibold tracking-wide">
+                    Actions
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filteredRequests.length === 0 ? (
+                  <tr>
+                    <td
+                      colSpan={7}
+                      className="text-center text-gray-500 py-10 text-lg"
+                    >
+                      No donation requests matching the filter.
+                    </td>
+                  </tr>
+                ) : (
+                  filteredRequests.map((req, i) => (
+                    <tr
+                      key={req._id}
+                      className="odd:bg-white even:bg-red-50 hover:bg-red-100 transition-colors duration-200"
+                    >
+                      <td className="py-3 px-5 text-gray-700 font-medium">
+                        {i + 1}
+                      </td>
+                      <td className="py-3 px-5 flex items-center gap-3">
+                        <img
+                          src={req.requesterAvatar || "/default-avatar.png"}
+                          alt="avatar"
+                          className="w-10 h-10 rounded-full border-2 border-red-300"
+                        />
+                        <div>
+                          <p className="font-semibold text-red-700">
+                            {req.name || req.role || "Anonymous"}
+                          </p>
+                          <p className="text-sm text-gray-600 truncate max-w-xs">
+                            {req.requesterEmail}
+                          </p>
+                        </div>
+                      </td>
+                      <td className="py-3 px-5 font-semibold text-red-600">
+                        {req.bloodGroup}
+                      </td>
+                      <td className="py-3 px-5 text-gray-700">
+                        {req.district}, {req.division}
+                      </td>
+                      <td className="py-3 px-5 font-mono text-gray-600">
+                        {req.donationDate}
+                      </td>
+                      <td className="py-3 px-5">
+                        <span
+                          className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${
+                            req.status === "pending"
+                              ? "bg-yellow-200 text-yellow-900"
+                              : req.status === "completed"
+                              ? "bg-green-200 text-green-900"
+                              : req.status === "cancelled"
+                              ? "bg-red-200 text-red-900"
+                              : "bg-blue-200 text-blue-900"
+                          }`}
+                        >
+                          {req.status.charAt(0).toUpperCase() +
+                            req.status.slice(1)}
+                        </span>
+                      </td>
+                      <td className="py-3 px-5 flex justify-center gap-3">
+                        <button
+                          onClick={() => setSelectedRequest(req)}
+                          className="btn btn-sm btn-outline btn-info flex items-center justify-center gap-1 hover:bg-blue-600 hover:text-white transition-colors duration-300"
+                          title="Edit Request"
+                          aria-label={`Edit request ${req._id}`}
+                        >
+                          <FaEdit />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(req._id)}
+                          className="btn btn-sm btn-outline btn-error flex items-center justify-center gap-1 hover:bg-red-600 hover:text-white transition-colors duration-300"
+                          title="Delete Request"
+                          aria-label={`Delete request ${req._id}`}
+                        >
+                          <FaTrash />
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
 
-          {filteredRequests.length === 0 && (
-            <div className="text-center text-gray-500 py-6">
-              No matching donation requests.
+          {/* Edit Modal */}
+          {selectedRequest && (
+            <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-4">
+              <div className="bg-white rounded-lg shadow-2xl max-w-md w-full p-6 relative animate-fadeIn">
+                <h3 className="text-2xl font-semibold mb-5 text-red-700">
+                  Edit Donation Request
+                </h3>
+                <form onSubmit={handleUpdate} className="space-y-5">
+                  <div>
+                    <label
+                      htmlFor="donationDate"
+                      className="block text-sm font-medium text-gray-700 mb-2"
+                    >
+                      Donation Date
+                    </label>
+                    <input
+                      type="date"
+                      id="donationDate"
+                      name="donationDate"
+                      defaultValue={selectedRequest.donationDate}
+                      className="input input-bordered w-full focus:ring-2 focus:ring-red-400"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label
+                      htmlFor="status"
+                      className="block text-sm font-medium text-gray-700 mb-2"
+                    >
+                      Status
+                    </label>
+                    <select
+                      id="status"
+                      name="status"
+                      defaultValue={selectedRequest.status}
+                      className="select select-bordered w-full focus:ring-2 focus:ring-red-400"
+                      required
+                    >
+                      <option value="pending">Pending</option>
+                      <option value="in progress">In Progress</option>
+                      <option value="completed">Completed</option>
+                      <option value="cancelled">Cancelled</option>
+                    </select>
+                  </div>
+                  <div className="flex justify-end gap-4 pt-2">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedRequest(null)}
+                      className="btn btn-outline text-red-600 hover:bg-red-100 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="btn btn-primary bg-red-600 hover:bg-red-700 transition-colors"
+                    >
+                      Save Changes
+                    </button>
+                  </div>
+                </form>
+                <button
+                  aria-label="Close modal"
+                  className="absolute top-4 right-4 text-gray-400 hover:text-red-600 transition-colors text-xl font-bold"
+                  onClick={() => setSelectedRequest(null)}
+                >
+                  &times;
+                </button>
+              </div>
             </div>
           )}
-        </div>
-      )}
-
-      {/* Modal */}
-      {selectedRequest && (
-        <div className="fixed inset-0 z-50 bg-black bg-opacity-40 flex justify-center items-center">
-          <div className="bg-white p-6 rounded shadow-md w-full max-w-md relative">
-            <h3 className="text-xl font-semibold mb-4">Edit Request</h3>
-            <form onSubmit={handleUpdate} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Donation Date
-                </label>
-                <input
-                  type="date"
-                  name="donationDate"
-                  defaultValue={selectedRequest.donationDate}
-                  className="input input-bordered w-full"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Status</label>
-                <select
-                  name="status"
-                  defaultValue={selectedRequest.status}
-                  className="select select-bordered w-full"
-                  required
-                >
-                  <option value="pending">Pending</option>
-                  <option value="in progress">In Progress</option>
-                  <option value="completed">Completed</option>
-                  <option value="cancelled">Cancelled</option>
-                </select>
-              </div>
-              <div className="flex justify-end gap-3">
-                <button
-                  type="button"
-                  onClick={() => setSelectedRequest(null)}
-                  className="btn btn-outline"
-                >
-                  Cancel
-                </button>
-                <button type="submit" className="btn btn-primary">
-                  Save Changes
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+        </>
       )}
     </div>
   );

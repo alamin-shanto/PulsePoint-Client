@@ -51,8 +51,8 @@ const DonationRequestDetails = () => {
     try {
       await axiosSecure.patch(`/donation-requests/${id}`, {
         status: "inprogress",
-        donorId: user._id, // optional, send donor info if needed
-        donorName: user.name,
+        donorId: user._id,
+        donorName: user.displayName || user.name || "Donor",
         donorEmail: user.email,
       });
 
@@ -60,7 +60,8 @@ const DonationRequestDetails = () => {
       setRequest((prev) => ({ ...prev, status: "inprogress" }));
       setShowModal(false);
     } catch (err) {
-      toast.error("Failed to confirm donation", err.message);
+      toast.error("Failed to confirm donation");
+      console.error(err);
     } finally {
       setDonating(false);
     }
@@ -157,7 +158,7 @@ const DonationRequestDetails = () => {
                 <label className="block font-medium mb-1">Donor Name</label>
                 <input
                   type="text"
-                  value={user.name}
+                  value={user.displayName || user.name || "Donor"}
                   readOnly
                   className="input input-bordered w-full bg-gray-100 cursor-not-allowed"
                 />

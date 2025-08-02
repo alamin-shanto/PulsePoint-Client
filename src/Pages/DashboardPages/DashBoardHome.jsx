@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 function DashboardHome() {
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("user"));
-  const donationRequests = []; // Populate later
+  const donationRequests = [];
 
   return (
     <div className="w-full min-h-screen p-4 sm:p-8 lg:p-10 bg-gradient-to-b from-red-50 via-white to-gray-100">

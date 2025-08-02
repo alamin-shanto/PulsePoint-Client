@@ -38,9 +38,12 @@ function DashboardLayout() {
       >
         <div className="p-5 h-full flex flex-col justify-between">
           <div>
-            <h2 className="text-2xl font-extrabold text-red-600 mb-6 text-center">
-              BloodCare
-            </h2>
+            <Link
+              to="/"
+              className="text-2xl font-extrabold text-red-600 mb-6 text-center hover:text-red-800 transition-colors"
+            >
+              Pulse Point
+            </Link>
 
             <div className="text-center mb-4">
               <div className="text-sm text-gray-600">Logged in as</div>

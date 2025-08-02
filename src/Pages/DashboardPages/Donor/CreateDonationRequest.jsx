@@ -13,8 +13,9 @@ const CreateDonationRequest = () => {
   const [userStatus, setUserStatus] = useState("active");
 
   const [formData, setFormData] = useState({
-    requesterName: user?.displayName || "",
+    requesterName: user?.displayName || user?.name || "",
     requesterEmail: user?.email || "",
+    requesterAvatar: user?.avatar || "",
     recipientName: "",
     division: "",
     district: "",
@@ -114,8 +115,9 @@ const CreateDonationRequest = () => {
           "success"
         );
         setFormData({
-          requesterName: user?.displayName || "",
+          requesterName: user?.displayName || user?.name || "",
           requesterEmail: user?.email || "",
+          requesterAvatar: user?.avatar || "",
           recipientName: "",
           division: "",
           district: "",

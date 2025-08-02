@@ -91,7 +91,7 @@ const Login = () => {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-red-100 to-pink-100 px-4">
       <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-lg">
         <h2 className="text-3xl font-bold text-center text-red-600 mb-6">
-          Login to BloodLink
+          Login to Pulse Point
         </h2>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>

@@ -106,7 +106,7 @@ const MyDonationRequests = () => {
                 className="bg-white shadow-md rounded-lg p-5 border border-gray-200 hover:border-red-400 transition"
               >
                 <h3 className="text-xl font-semibold text-red-600 mb-2">
-                  {req.recipientName}
+                  {req.requesterName}
                 </h3>
                 <p className="text-gray-600">
                   <span className="font-medium">Division</span> {req.division}

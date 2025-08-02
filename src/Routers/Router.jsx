@@ -120,7 +120,7 @@ const router = createBrowserRouter([
         ),
       },
       {
-        path: "funding",
+        path: "fundings",
         element: (
           <AdminRoute>
             <FundingPage />

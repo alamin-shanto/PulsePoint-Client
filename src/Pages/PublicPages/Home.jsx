@@ -2,6 +2,8 @@ import { useContext, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import AuthContext from "../../Context/AuthContext";
 import useAxiosSecure from "../../Hooks/useAxiosSecure";
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 const HomePage = () => {
   const { user, logOut } = useContext(AuthContext);
@@ -13,32 +15,25 @@ const HomePage = () => {
     email: "",
     message: "",
   });
-
   const [formStatus, setFormStatus] = useState(null);
-
-  const [search, setSearch] = useState({
-    bloodGroup: "",
-    district: "",
-  });
+  const [search, setSearch] = useState({ bloodGroup: "", district: "" });
   const [donors, setDonors] = useState([]);
   const [searchLoading, setSearchLoading] = useState(false);
-
-  // New state to track mobile menu open/close
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (e) =>
     setContactForm({ ...contactForm, [e.target.name]: e.target.value });
-  };
-
   const handleContactSubmit = (e) => {
     e.preventDefault();
     setFormStatus("Thank you for contacting us!");
     setContactForm({ name: "", email: "", message: "" });
   };
-
-  const handleSearchChange = (e) => {
+  const handleSearchChange = (e) =>
     setSearch({ ...search, [e.target.name]: e.target.value });
-  };
+
+  useEffect(() => {
+    AOS.init({ duration: 1000 });
+  }, []);
 
   useEffect(() => {
     const fetchDonors = async () => {
@@ -54,17 +49,15 @@ const HomePage = () => {
         } finally {
           setSearchLoading(false);
         }
-      } else {
-        setDonors([]);
-      }
+      } else setDonors([]);
     };
     fetchDonors();
   }, [search, axiosSecure]);
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
-      {/* Responsive Navbar */}
-      <nav className="sticky top-0 z-50 bg-gradient-to-r from-red-700 via-red-600 to-red-700 text-white shadow-lg">
+      {/* Navbar */}
+      <nav className="sticky top-0 z-50 backdrop-blur-md bg-red-700/80 text-white shadow-lg">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link
             to="/"
@@ -72,8 +65,6 @@ const HomePage = () => {
           >
             Pulse Point
           </Link>
-
-          {/* Desktop menu */}
           <div className="hidden md:flex items-center space-x-8">
             <Link
               to="/donation-requests"
@@ -89,15 +80,13 @@ const HomePage = () => {
             </Link>
             {user && (
               <Link
-                to="/dashboard/funding"
+                to="/dashboard/fundings"
                 className="hover:text-red-300 transition duration-300"
               >
                 Funding Links
               </Link>
             )}
           </div>
-
-          {/* User auth buttons or dropdown */}
           <div className="hidden md:flex relative">
             {!user ? (
               <div className="space-x-4">
@@ -122,7 +111,7 @@ const HomePage = () => {
                 >
                   <img
                     src={
-                      user.avatar ||
+                      user.photoURL ||
                       "https://res.cloudinary.com/duic0gfkw/image/upload/v1754083513/avatar-default-svgrepo-com_thzca7.svg"
                     }
                     alt="avatar"
@@ -154,14 +143,11 @@ const HomePage = () => {
               </div>
             )}
           </div>
-
-          {/* Mobile Hamburger Button */}
           <button
             onClick={() => setMenuOpen((prev) => !prev)}
             className="md:hidden flex items-center justify-center p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-white"
             aria-label="Toggle menu"
           >
-            {/* Hamburger icon */}
             <svg
               className="w-6 h-6 text-white"
               fill="none"
@@ -172,15 +158,13 @@ const HomePage = () => {
               viewBox="0 0 24 24"
             >
               {menuOpen ? (
-                <path d="M6 18L18 6M6 6l12 12" /> // X icon when open
+                <path d="M6 18L18 6M6 6l12 12" />
               ) : (
-                <path d="M4 6h16M4 12h16M4 18h16" /> // Hamburger when closed
+                <path d="M4 6h16M4 12h16M4 18h16" />
               )}
             </svg>
           </button>
         </div>
-
-        {/* Mobile Menu */}
         {menuOpen && (
           <div className="md:hidden bg-red-700 bg-opacity-95 text-white px-6 py-4 space-y-4">
             <Link
@@ -199,7 +183,7 @@ const HomePage = () => {
             </Link>
             {user && (
               <Link
-                to="/funding-links"
+                to="/dashboard/fundings"
                 onClick={() => setMenuOpen(false)}
                 className="block hover:text-red-300 transition"
               >
@@ -229,7 +213,7 @@ const HomePage = () => {
                 <div className="flex items-center space-x-3 mb-3">
                   <img
                     src={
-                      user.avatar ||
+                      user.photoURL ||
                       "https://res.cloudinary.com/duic0gfkw/image/upload/v1754083513/avatar-default-svgrepo-com_thzca7.svg"
                     }
                     alt="avatar"
@@ -260,23 +244,58 @@ const HomePage = () => {
         )}
       </nav>
 
-      {/* Hero Section with Pulse Animation */}
-      <header className="bg-red-100 flex flex-col items-center justify-center text-center py-24 px-6 space-y-6 relative overflow-hidden">
-        <h1 className="text-5xl md:text-6xl font-extrabold text-red-700 relative z-10">
+      {/* Hero */}
+      <header className="relative bg-gradient-to-r from-red-50 via-red-100 to-red-50 overflow-hidden py-24 text-center px-6">
+        <h1
+          className="text-5xl md:text-6xl font-extrabold text-red-700 mb-6 relative z-10"
+          data-aos="fade-up"
+        >
           Save Lives by Donating Blood
         </h1>
-        <p className="max-w-xl text-gray-700 text-lg relative z-10">
+        <p
+          className="text-lg text-gray-700 mb-8 relative z-10"
+          data-aos="fade-up"
+          data-aos-delay="200"
+        >
           Join our community to help those in need and find donors near you.
         </p>
-        {/* Pulsing circle behind */}
+        <div
+          className="relative flex flex-col md:flex-row gap-4 justify-center z-10"
+          data-aos="fade-up"
+          data-aos-delay="400"
+        >
+          <Link
+            to="/register"
+            className="bg-red-600 text-white font-bold px-6 py-3 rounded-full hover:bg-red-700 transition shadow-lg"
+          >
+            Join as a Donor
+          </Link>
+          <Link
+            to="/search-donors"
+            className="bg-white text-red-700 font-bold px-6 py-3 rounded-full hover:bg-red-100 transition shadow-lg"
+          >
+            Search Donors
+          </Link>
+        </div>
         <span
           aria-hidden="true"
-          className="absolute w-48 h-48 md:w-64 md:h-64 rounded-full bg-red-400 opacity-30 animate-pulse -bottom-10 -right-10"
+          className="pointer-events-none absolute w-48 h-48 md:w-64 md:h-64 rounded-full bg-red-400 opacity-30 animate-pulse -bottom-10 -right-10"
         />
         <span
           aria-hidden="true"
-          className="absolute w-72 h-72 md:w-96 md:h-96 rounded-full bg-red-300 opacity-20 animate-pulse delay-500 -top-20 -left-20"
+          className="pointer-events-none absolute w-72 h-72 md:w-96 md:h-96 rounded-full bg-red-300 opacity-20 animate-pulse delay-500 -top-20 -left-20"
         />
+        <svg
+          className="absolute bottom-0 w-full"
+          viewBox="0 0 1440 320"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            fill="#f87171"
+            fillOpacity="0.2"
+            d="M0,160L48,149.3C96,139,192,117,288,128C384,139,480,181,576,192C672,203,768,181,864,154.7C960,128,1056,96,1152,106.7C1248,117,1344,171,1392,197.3L1440,224L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
+          />
+        </svg>
       </header>
 
       {/* 🔎 Live Donor Search with Hover Effects */}

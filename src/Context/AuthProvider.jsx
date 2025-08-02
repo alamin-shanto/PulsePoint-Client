@@ -84,7 +84,9 @@ const AuthProvider = ({ children }) => {
 
           // 📥 Get full user info (with role)
           const userRes = await axios.get(
-            `https://pulse-point-server-blue.vercel.app/users/${currentUser.email}`,
+            `https://pulse-point-server-blue.vercel.app/users/${encodeURIComponent(
+              currentUser.email
+            )}`,
             {
               headers: {
                 Authorization: `Bearer ${token}`,
@@ -96,7 +98,7 @@ const AuthProvider = ({ children }) => {
           setUser({
             uid: currentUser.uid,
             email: currentUser.email,
-            displayName: currentUser.displayName,
+            displayName: currentUser.displayName || userData.name,
             photoURL: currentUser.photoURL,
             role: userData.role || "donor",
             status: userData.status || "active",

@@ -21,21 +21,23 @@ const SearchDonors = () => {
   // Load divisions and districts on mount
   useEffect(() => {
     // Load divisions
-    fetch("/json/divisions.json")
+    fetch("/divisions.json")
       .then((res) => res.json())
       .then((data) => {
-        if (data && data[2] && data[2].data) {
-          setDivisions(data[2].data);
+        const divisionsTable = data.find((item) => item.name === "divisions");
+        if (divisionsTable && divisionsTable.data) {
+          setDivisions(divisionsTable.data);
         }
       })
       .catch(() => setDivisions([]));
 
     // Load districts
-    fetch("/json/districts.json")
+    fetch("/districts.json")
       .then((res) => res.json())
       .then((data) => {
-        if (data && data[2] && data[2].data) {
-          setDistricts(data[2].data);
+        const districtsTable = data.find((item) => item.name === "districts");
+        if (districtsTable && districtsTable.data) {
+          setDistricts(districtsTable.data);
         }
       })
       .catch(() => setDistricts([]));
@@ -44,18 +46,26 @@ const SearchDonors = () => {
   // Filter districts when division changes
   useEffect(() => {
     if (formData.division) {
-      const filtered = districts.filter(
-        (d) =>
-          d.division_id === formData.division ||
-          d.division_name === formData.division
+      // Create a map from division name to division id
+      const divisionNameToId = Object.fromEntries(
+        divisions.map((div) => [div.name, div.id])
       );
+
+      // Get the division id corresponding to selected division name
+      const selectedDivisionId = divisionNameToId[formData.division];
+
+      // Filter districts that have this division_id
+      const filtered = districts.filter(
+        (d) => d.division_id === selectedDivisionId
+      );
+
       setFilteredDistricts(filtered);
       setFormData((prev) => ({ ...prev, district: "" }));
     } else {
       setFilteredDistricts([]);
       setFormData((prev) => ({ ...prev, district: "" }));
     }
-  }, [formData.division, districts]);
+  }, [formData.division, districts, divisions]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -90,19 +100,25 @@ const SearchDonors = () => {
   };
 
   return (
-    <div className="max-w-5xl mx-auto px-6 py-10">
-      <h1 className="text-3xl font-bold mb-8 text-center text-red-700">
-        Search Blood Donors
+    <div className="max-w-6xl mx-auto px-6 py-12">
+      <h1
+        className="text-4xl font-extrabold mb-12 text-center text-red-700 drop-shadow-md"
+        data-aos="fade-up"
+      >
+        🔍 Search Blood Donors
       </h1>
 
-      <form onSubmit={handleSearch} className="grid gap-4 md:grid-cols-4 mb-8">
-        {/* Blood Group */}
+      <form
+        onSubmit={handleSearch}
+        className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10 bg-white shadow-md rounded-2xl p-6 border border-red-200"
+        data-aos="fade-up"
+      >
         <select
           name="bloodGroup"
           value={formData.bloodGroup}
           onChange={handleChange}
           required
-          className="select select-bordered"
+          className="select select-bordered border-red-400 focus:border-red-600 focus:ring-2 focus:ring-red-300 transition text-lg"
         >
           <option value="" disabled>
             Select Blood Group
@@ -114,93 +130,110 @@ const SearchDonors = () => {
           ))}
         </select>
 
-        {/* Division */}
         <select
           name="division"
           value={formData.division}
           onChange={handleChange}
           required
-          className="select select-bordered"
+          className="select select-bordered border-red-400 focus:border-red-600 focus:ring-2 focus:ring-red-300 transition text-lg"
         >
           <option value="" disabled>
             Select Division
           </option>
           {divisions.map((div) => (
-            <option key={div.id} value={div.id}>
+            <option key={div.id} value={div.name}>
               {div.name}
             </option>
           ))}
         </select>
 
-        {/* District */}
         <select
           name="district"
           value={formData.district}
           onChange={handleChange}
           required
-          className="select select-bordered"
           disabled={!formData.division}
+          className="select select-bordered border-red-400 focus:border-red-600 focus:ring-2 focus:ring-red-300 transition text-lg"
         >
           <option value="" disabled>
             Select District
           </option>
-          {filteredDistricts.length === 0 && (
+          {filteredDistricts.length === 0 ? (
             <option disabled>No districts</option>
+          ) : (
+            filteredDistricts.map((dist) => (
+              <option key={dist.id} value={dist.name}>
+                {dist.name}
+              </option>
+            ))
           )}
-          {filteredDistricts.map((dist) => (
-            <option key={dist.id} value={dist.name}>
-              {dist.name}
-            </option>
-          ))}
         </select>
 
-        <button type="submit" className="btn btn-primary">
+        <button
+          type="submit"
+          className="btn btn-primary bg-red-600 hover:bg-red-700 transition text-white font-bold text-lg rounded-full"
+        >
           Search
         </button>
       </form>
 
-      {/* Results Section */}
-      {loading && <p className="text-center text-red-600">Loading donors...</p>}
+      {/* Feedback Section */}
+      {loading && (
+        <p className="text-center text-red-500 font-semibold animate-pulse">
+          Searching donors...
+        </p>
+      )}
 
-      {error && <p className="text-center text-red-600">{error}</p>}
+      {error && (
+        <p className="text-center text-red-600 font-semibold">{error}</p>
+      )}
 
       {!loading && searched && donors.length === 0 && (
-        <p className="text-center text-gray-500">
+        <p className="text-center text-gray-500 italic">
           No donors found for selected criteria.
         </p>
       )}
 
+      {/* Donors Result */}
       {!loading && donors.length > 0 && (
-        <div className="grid gap-6 md:grid-cols-3">
+        <div
+          className="grid gap-8 md:grid-cols-2 lg:grid-cols-3"
+          data-aos="fade-up"
+        >
           {donors.map((donor) => (
             <div
               key={donor._id}
-              className="border rounded-lg shadow p-4 hover:shadow-lg transition cursor-pointer"
+              className="bg-white border border-red-200 rounded-2xl shadow-lg p-6 hover:shadow-red-300 transition-transform transform hover:-translate-y-1 cursor-pointer"
             >
               <div className="flex items-center space-x-4 mb-4">
                 <img
                   src={donor.avatar || "/default-avatar.png"}
                   alt={donor.name}
-                  className="w-12 h-12 rounded-full"
+                  className="w-14 h-14 rounded-full border-2 border-red-500 shadow"
                 />
                 <div>
-                  <h3 className="font-semibold text-lg">{donor.name}</h3>
-                  <p className="text-sm text-gray-600">{donor.email}</p>
+                  <h3 className="font-bold text-lg text-red-800">
+                    {donor.name}
+                  </h3>
+                  <p className="text-sm text-gray-500">{donor.email}</p>
                 </div>
               </div>
-              <p>
-                <strong>Blood Group:</strong> {donor.bloodGroup}
-              </p>
-              <p>
-                <strong>Location:</strong> {donor.district}, {donor.division}
-              </p>
-              <p>
-                <strong>Last Donation:</strong>{" "}
-                {donor.lastDonationDate || "Not available"}
-              </p>
-              <p>
-                <strong>Contact:</strong> {donor.phone || "Not available"}
-              </p>
+              <ul className="text-sm text-red-700 space-y-1">
+                <li>
+                  <strong>🩸 Blood Group:</strong> {donor.bloodGroup}
+                </li>
+                <li>
+                  <strong>📍 Location:</strong> {donor.district},{" "}
+                  {donor.division}
+                </li>
+                <li>
+                  <strong>🕒 Last Donation:</strong>{" "}
+                  {donor.lastDonationDate || "Not available"}
+                </li>
+                <li>
+                  <strong>📞 Contact:</strong> {donor.phone || "Not available"}
+                </li>
+              </ul>
             </div>
           ))}
         </div>

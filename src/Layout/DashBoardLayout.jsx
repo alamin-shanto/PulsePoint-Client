@@ -29,39 +29,42 @@ function DashboardLayout() {
   const isActive = (path) => location.pathname === path;
 
   return (
-    <div className="flex min-h-screen bg-gray-100 text-gray-800">
+    <div className="flex min-h-screen bg-gradient-to-r from-purple-50 via-pink-50 to-yellow-50 text-gray-800">
       {/* Sidebar */}
       <aside
-        className={`fixed md:relative top-0 left-0 z-40 h-full w-64 bg-white border-r shadow-xl transform transition-transform duration-300 ease-in-out ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
-        }`}
+        className={`fixed md:relative top-0 left-0 z-40 h-full w-64 bg-white border-r border-pink-300 shadow-2xl transform transition-transform duration-300 ease-in-out rounded-tr-3xl rounded-br-3xl
+          ${
+            sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+          }`}
       >
-        <div className="p-5 h-full flex flex-col justify-between">
+        <div className="p-6 h-full flex flex-col justify-between">
           <div>
             <Link
               to="/"
-              className="text-2xl font-extrabold text-red-600 mb-6 text-center hover:text-red-800 transition-colors"
+              className="text-3xl font-extrabold text-pink-600 mb-8 text-center tracking-wide drop-shadow-md hover:text-pink-800 transition-colors"
             >
               Pulse Point
             </Link>
 
-            <div className="text-center mb-4">
-              <div className="text-sm text-gray-600">Logged in as</div>
-              <div className="font-semibold text-red-600 capitalize">
+            <div className="text-center mb-8">
+              <div className="text-sm text-pink-400 uppercase tracking-widest font-semibold">
+                Logged in as
+              </div>
+              <div className="mt-1 text-pink-700 font-bold text-lg capitalize drop-shadow-sm">
                 {user?.role || "User"}
               </div>
             </div>
 
-            <nav className="flex flex-col gap-3 font-medium">
+            <nav className="flex flex-col gap-4 font-semibold">
               <SidebarLink
                 to="/dashboard"
-                icon={<FaHome />}
+                icon={<FaHome className="text-pink-500" />}
                 label="Home"
                 active={isActive("/dashboard")}
               />
               <SidebarLink
                 to="/dashboard/profile"
-                icon={<FaUser />}
+                icon={<FaUser className="text-pink-500" />}
                 label="Profile"
                 active={isActive("/dashboard/profile")}
               />
@@ -71,13 +74,13 @@ function DashboardLayout() {
                 <>
                   <SidebarLink
                     to="/dashboard/my-donation-requests"
-                    icon={<FaTint />}
+                    icon={<FaTint className="text-pink-500" />}
                     label="My Requests"
                     active={isActive("/dashboard/my-donation-requests")}
                   />
                   <SidebarLink
                     to="/dashboard/create-donation-request"
-                    icon={<FaPlus />}
+                    icon={<FaPlus className="text-pink-500" />}
                     label="Create Request"
                     active={isActive("/dashboard/create-donation-request")}
                   />
@@ -89,13 +92,13 @@ function DashboardLayout() {
                 <>
                   <SidebarLink
                     to="/dashboard/all-users"
-                    icon={<FaUsers />}
+                    icon={<FaUsers className="text-pink-500" />}
                     label="Manage Users"
                     active={isActive("/dashboard/all-users")}
                   />
                   <SidebarLink
                     to="/dashboard/all-blood-donation-request"
-                    icon={<FaClipboardList />}
+                    icon={<FaClipboardList className="text-pink-500" />}
                     label="All Requests"
                     active={isActive("/dashboard/all-blood-donation-request")}
                   />
@@ -106,7 +109,7 @@ function DashboardLayout() {
               {user?.role === "volunteer" && (
                 <SidebarLink
                   to="/dashboard/assigned-requests"
-                  icon={<FaTasks />}
+                  icon={<FaTasks className="text-pink-500" />}
                   label="Assigned Requests"
                   active={isActive("/dashboard/assigned-requests")}
                 />
@@ -119,10 +122,10 @@ function DashboardLayout() {
               handleLogout();
               setSidebarOpen(false);
             }}
-            className="text-red-600 font-semibold hover:text-red-800 flex items-center gap-2 transition"
+            className="text-pink-600 font-bold hover:text-pink-800 flex items-center gap-3 transition text-lg p-3 rounded-lg hover:bg-pink-100 shadow-md justify-center"
             aria-label="Logout"
           >
-            <FaSignOutAlt /> Logout
+            <FaSignOutAlt className="text-xl" /> Logout
           </button>
         </div>
       </aside>
@@ -131,34 +134,37 @@ function DashboardLayout() {
       {sidebarOpen && (
         <div
           onClick={() => setSidebarOpen(false)}
-          className="fixed inset-0 bg-black/40 z-30 md:hidden"
+          className="fixed inset-0 bg-black/50 z-30 md:hidden"
         />
       )}
 
       {/* Main content */}
       <div className="flex flex-col flex-1">
         {/* Mobile Topbar */}
-        <header className="md:hidden flex items-center justify-between bg-white px-4 py-3 border-b shadow-sm z-20">
+        <header className="md:hidden flex items-center justify-between bg-white px-5 py-3 border-b border-pink-200 shadow-sm z-20">
           <button
             onClick={toggleSidebar}
-            className="text-2xl text-gray-700"
+            className="text-3xl text-pink-600 hover:text-pink-800 transition"
             aria-label="Toggle Sidebar"
           >
             {sidebarOpen ? <FiX /> : <FiMenu />}
           </button>
-          <h1 className="text-xl font-bold text-red-600">Dashboard</h1>
+          <h1 className="text-xl font-extrabold text-pink-600 tracking-wider">
+            Dashboard
+          </h1>
           <button
             onClick={handleLogout}
-            className="text-red-600 font-semibold"
+            className="text-pink-600 font-bold hover:text-pink-800 transition text-2xl"
             aria-label="Logout"
+            title="Logout"
           >
             🔓
           </button>
         </header>
 
         {/* Content */}
-        <main className="flex-1 overflow-y-auto px-4 py-6 sm:px-6 lg:px-8 bg-gray-100">
-          <div className="max-w-7xl w-full mx-auto bg-white rounded-xl shadow-md p-6 md:p-8">
+        <main className="flex-1 overflow-y-auto px-6 py-8 sm:px-10 lg:px-12 bg-gradient-to-br from-pink-50 via-purple-50 to-yellow-50">
+          <div className="max-w-7xl w-full mx-auto bg-white rounded-3xl shadow-2xl p-8 md:p-12 border border-pink-200">
             <Outlet />
           </div>
         </main>
@@ -172,13 +178,14 @@ function SidebarLink({ to, icon, label, active }) {
   return (
     <Link
       to={to}
-      className={`flex items-center gap-3 px-4 py-2 rounded-lg transition-all ${
-        active
-          ? "bg-red-100 text-red-700 font-semibold border-l-4 border-red-500"
-          : "hover:bg-gray-100"
-      }`}
+      className={`flex items-center gap-3 px-5 py-3 rounded-xl text-lg transition-all duration-300
+        ${
+          active
+            ? "bg-pink-100 text-pink-700 font-extrabold border-l-6 border-pink-500 shadow-inner"
+            : "text-pink-600 hover:bg-pink-200 hover:text-pink-800"
+        }`}
     >
-      {icon} {label}
+      <span className="text-xl">{icon}</span> {label}
     </Link>
   );
 }

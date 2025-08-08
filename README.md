@@ -49,6 +49,7 @@
 
 ## 🧭 Project Structure
 
+```
 pulse-point/
 │
 ├── client/ (React App)
@@ -64,6 +65,8 @@ pulse-point/
 │
 ├── .env
 └── README.md
+
+```
 
 💡 Notable UX Highlights
 🎨 Custom-styled dashboard with role-based sidebar

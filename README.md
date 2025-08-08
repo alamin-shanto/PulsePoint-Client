@@ -2,7 +2,8 @@
 
 **Pulse Point** is a full-featured blood donation web application designed to bridge the gap between donors, recipients, volunteers, and administrators — creating a seamless and efficient system to save lives.
 
-(![Pulse Point Banner](https://github.com/user-attachments/assets/1d5a6010-fcb0-460f-9251-0f9702961003)
+![Pulse Point](https://github.com/user-attachments/assets/87de7a25-1095-41ee-a77d-3dd81dd1a514)
+
 
 
 ---
